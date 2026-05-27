@@ -1345,6 +1345,44 @@ body:not(.game-fullscreen-active) .math-keyboard.creator-hidden{
 }
 </style>
 
+
+<style id="firebase-cloud-sync-style">
+.cloud-sync-box{
+  border:2px solid var(--line);
+  border-radius:24px;
+  padding:16px;
+  margin:0 0 18px 0;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(51,0,204,.08);
+}
+.cloud-sync-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+}
+.cloud-sync-row input{
+  max-width:260px;
+  border-radius:14px;
+  padding:8px 12px;
+  font-size:18px;
+}
+.cloud-sync-status{
+  margin-top:8px;
+  font-size:18px;
+  color:var(--muted);
+}
+.cloud-sync-status strong{
+  color:var(--violet);
+}
+.cloud-sync-note{
+  font-size:17px;
+  color:var(--muted);
+  margin:8px 0 0;
+  line-height:1.25;
+}
+</style>
+
 </head>
 
 <body>
@@ -5395,6 +5433,454 @@ document.addEventListener("DOMContentLoaded", ()=>{
     if(typeof typeset === 'function') typeset(wrapper);
   };
 })();
+</script>
+
+
+<script type="module" id="firebase-cloud-sync-script">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js";
+import {
+  getAuth,
+  onAuthStateChanged,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js";
+import {
+  getFirestore,
+  collection,
+  doc,
+  setDoc,
+  getDocs,
+  deleteDoc,
+  query,
+  orderBy,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBXrFHSIHtV17TSFYv5jlaycu0ZqNunA3s",
+  authDomain: "do-potegi-gry.firebaseapp.com",
+  projectId: "do-potegi-gry",
+  storageBucket: "do-potegi-gry.firebasestorage.app",
+  messagingSenderId: "962018953104",
+  appId: "1:962018953104:web:5ec49273973cab121dd515"
+};
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+let cloudUser = null;
+let cloudGames = [];
+let cloudReady = false;
+
+function q(id){ return document.getElementById(id); }
+
+function getLocalGames(){
+  try{
+    return JSON.parse(localStorage.getItem("doPotegiGames") || "[]");
+  }catch(e){
+    return [];
+  }
+}
+
+function setLocalGames(games){
+  localStorage.setItem("doPotegiGames", JSON.stringify(games || []));
+}
+
+function gamesCollection(){
+  if(!cloudUser) return null;
+  return collection(db, "users", cloudUser.uid, "games");
+}
+
+function normalizeGameForSave(game){
+  const copy = JSON.parse(JSON.stringify(game || {}));
+  copy.savedId = copy.savedId || ("game_" + Date.now() + "_" + Math.random().toString(36).slice(2,8));
+  copy.savedAt = copy.savedAt || new Date().toISOString();
+  copy.updatedAt = new Date().toISOString();
+  return copy;
+}
+
+function currentSavedGames(){
+  return cloudUser ? cloudGames : getLocalGames();
+}
+
+function setStatus(html){
+  const el = q("cloudSyncStatus");
+  if(el) el.innerHTML = html;
+}
+
+async function loadCloudGames(){
+  if(!cloudUser) return;
+  setStatus("Wczytuję zapisane gry z chmury...");
+  try{
+    const ref = gamesCollection();
+    const snap = await getDocs(query(ref, orderBy("savedAt", "desc")));
+    cloudGames = snap.docs.map(d => {
+      const data = d.data();
+      delete data._serverUpdatedAt;
+      return { ...data, savedId: d.id };
+    });
+    setLocalGames(cloudGames);
+    cloudReady = true;
+    setStatus("Zalogowano jako <strong>" + escapeHtml(cloudUser.email || "konto") + "</strong>. Gry są synchronizowane w chmurze.");
+    window.renderSavedGames();
+  }catch(e){
+    cloudReady = false;
+    setStatus("Nie udało się wczytać chmury. Sprawdź, czy baza Firestore jest włączona. Szczegóły: " + escapeHtml(e.message || String(e)));
+    window.renderSavedGames();
+  }
+}
+
+async function saveGameToCloud(game){
+  if(!cloudUser) return;
+  const ref = doc(db, "users", cloudUser.uid, "games", game.savedId);
+  await setDoc(ref, { ...game, _serverUpdatedAt: serverTimestamp() }, { merge:true });
+}
+
+async function deleteGameFromCloud(game){
+  if(!cloudUser || !game || !game.savedId) return;
+  await deleteDoc(doc(db, "users", cloudUser.uid, "games", game.savedId));
+}
+
+async function syncLocalToCloud(){
+  if(!cloudUser){
+    showToast("Najpierw się zaloguj.");
+    return;
+  }
+  const local = getLocalGames();
+  if(!local.length){
+    showToast("Brak lokalnych gier do przesłania.");
+    return;
+  }
+  try{
+    for(const raw of local){
+      const game = normalizeGameForSave(raw);
+      await saveGameToCloud(game);
+    }
+    await loadCloudGames();
+    showToast("Lokalne gry przesłane do chmury.");
+  }catch(e){
+    showToast("Nie udało się przesłać gier do chmury.");
+    setStatus("Błąd synchronizacji: " + escapeHtml(e.message || String(e)));
+  }
+}
+
+function ensureCloudSyncBox(){
+  const savedList = q("savedList");
+  if(!savedList || q("cloudSyncBox")) return;
+
+  const box = document.createElement("div");
+  box.id = "cloudSyncBox";
+  box.className = "cloud-sync-box";
+  box.innerHTML = `
+    <div class="cloud-sync-row" id="cloudLoggedOut">
+      <input id="cloudEmail" type="email" placeholder="E-mail" autocomplete="email">
+      <input id="cloudPassword" type="password" placeholder="Hasło" autocomplete="current-password">
+      <button class="btn small" type="button" id="cloudLoginBtn">Zaloguj</button>
+      <button class="btn secondary small" type="button" id="cloudRegisterBtn">Utwórz konto</button>
+    </div>
+    <div class="cloud-sync-row" id="cloudLoggedIn" style="display:none;">
+      <button class="btn secondary small" type="button" id="cloudSyncLocalBtn">Przenieś lokalne gry do chmury</button>
+      <button class="btn secondary small" type="button" id="cloudRefreshBtn">Odśwież gry z chmury</button>
+      <button class="btn red small" type="button" id="cloudLogoutBtn">Wyloguj</button>
+    </div>
+    <div class="cloud-sync-status" id="cloudSyncStatus">Nie zalogowano. Bez logowania gry zapisują się tylko na tym urządzeniu.</div>
+    <p class="cloud-sync-note">Po zalogowaniu tym samym e-mailem na laptopie i iPadzie zobaczysz te same zapisane gry.</p>
+  `;
+
+  savedList.parentNode.insertBefore(box, savedList);
+
+  q("cloudLoginBtn").addEventListener("click", async function(){
+    const email = q("cloudEmail").value.trim();
+    const password = q("cloudPassword").value;
+    if(!email || !password){
+      showToast("Wpisz e-mail i hasło.");
+      return;
+    }
+    try{
+      await signInWithEmailAndPassword(auth, email, password);
+      showToast("Zalogowano.");
+    }catch(e){
+      showToast("Nie udało się zalogować.");
+      setStatus("Błąd logowania: " + escapeHtml(e.message || String(e)));
+    }
+  });
+
+  q("cloudRegisterBtn").addEventListener("click", async function(){
+    const email = q("cloudEmail").value.trim();
+    const password = q("cloudPassword").value;
+    if(!email || !password){
+      showToast("Wpisz e-mail i hasło.");
+      return;
+    }
+    if(password.length < 6){
+      showToast("Hasło musi mieć co najmniej 6 znaków.");
+      return;
+    }
+    try{
+      await createUserWithEmailAndPassword(auth, email, password);
+      showToast("Konto utworzone.");
+    }catch(e){
+      showToast("Nie udało się utworzyć konta.");
+      setStatus("Błąd tworzenia konta: " + escapeHtml(e.message || String(e)));
+    }
+  });
+
+  q("cloudLogoutBtn").addEventListener("click", async function(){
+    await signOut(auth);
+    showToast("Wylogowano.");
+  });
+
+  q("cloudRefreshBtn").addEventListener("click", loadCloudGames);
+  q("cloudSyncLocalBtn").addEventListener("click", syncLocalToCloud);
+}
+
+function updateAuthUi(){
+  ensureCloudSyncBox();
+
+  const out = q("cloudLoggedOut");
+  const inn = q("cloudLoggedIn");
+
+  if(out) out.style.display = cloudUser ? "none" : "flex";
+  if(inn) inn.style.display = cloudUser ? "flex" : "none";
+
+  if(!cloudUser){
+    cloudReady = false;
+    cloudGames = [];
+    setStatus("Nie zalogowano. Bez logowania gry zapisują się tylko na tym urządzeniu.");
+  }
+}
+
+function typeInfo(game){
+  let typeLabel = "Gra";
+  let count = "";
+
+  if(game.type === "match"){
+    typeLabel = "Łączenie w pary";
+    count = (game.pairs ? game.pairs.length : 0) + " par";
+  }else if(game.type === "quiz"){
+    typeLabel = "Quiz";
+    count = (game.questions ? game.questions.length : 0) + " pytań";
+  }else if(game.type === "memory"){
+    typeLabel = "Memory";
+    count = (game.pairs ? game.pairs.length : 0) + " par";
+  }else if(game.type === "puzzle"){
+    typeLabel = "Puzzle";
+    count = (game.tasks ? game.tasks.length : 0) + " zadań";
+  }else if(game.type === "safe"){
+    typeLabel = "Sejf";
+    count = (game.tasks ? game.tasks.length : 0) + " zadań";
+  }else if(game.type === "flying"){
+    typeLabel = "Latające odpowiedzi";
+    count = (game.questions ? game.questions.length : 0) + " pytań";
+  }else if(game.type === "training"){
+    typeLabel = "Trening";
+    count = (game.questions ? game.questions.length : (game.tasks ? game.tasks.length : 0)) + " zadań";
+  }else if(game.type === "fraction-models"){
+    typeLabel = "Modele ułamków";
+    count = (game.questions ? game.questions.length : (game.tasks ? game.tasks.length : 0)) + " zadań";
+  }
+
+  return { typeLabel, count };
+}
+
+window.saveCurrentGame = async function(){
+  try{
+    const rawData = window.getCurrentGameData ? window.getCurrentGameData() : getCurrentGameData();
+    const data = normalizeGameForSave(rawData);
+    const saved = getLocalGames();
+    saved.unshift(data);
+    setLocalGames(saved);
+
+    if(cloudUser){
+      await saveGameToCloud(data);
+      await loadCloudGames();
+      showToast("Gra zapisana w chmurze.");
+    }else{
+      showToast("Gra zapisana na tym urządzeniu. Zaloguj się, aby zapisać ją w chmurze.");
+      window.renderSavedGames();
+    }
+  }catch(e){
+    showToast(e.message || "Nie udało się zapisać gry.");
+    setStatus("Błąd zapisu: " + escapeHtml(e.message || String(e)));
+  }
+};
+
+window.renderSavedGames = function(){
+  ensureCloudSyncBox();
+  const box = q("savedList");
+  if(!box) return;
+
+  const saved = currentSavedGames();
+
+  if(!saved.length){
+    box.innerHTML = cloudUser
+      ? "<p>Nie masz jeszcze zapisanych gier w chmurze.</p>"
+      : "<p>Nie masz jeszcze zapisanych gier. Zaloguj się, aby je synchronizować.</p>";
+    return;
+  }
+
+  box.innerHTML = "";
+
+  saved.forEach(function(game, index){
+    const item = document.createElement("div");
+    item.className = "saved-game";
+    if(game.type) item.dataset.gameType = game.type;
+
+    const info = typeInfo(game);
+
+    item.innerHTML = `
+      <div>
+        <span class="saved-type-badge">${escapeHtml(info.typeLabel)}</span>
+        <strong>${escapeHtml(game.title || "Gra matematyczna")}</strong>
+        <span class="small">${escapeHtml(info.count || "")}${cloudUser ? " · chmura" : " · zapis lokalny"}</span>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
+        <button class="btn small" type="button" data-action="edit">Edytuj</button>
+        <button class="btn red small" type="button" data-action="play">Graj</button>
+        <button class="btn secondary small" type="button" data-action="delete">Usuń</button>
+      </div>
+    `;
+
+    item.querySelector('[data-action="edit"]').addEventListener("click", function(){
+      window.loadSavedGame(index);
+    });
+
+    item.querySelector('[data-action="play"]').addEventListener("click", function(){
+      window.playSavedGame(index);
+    });
+
+    item.querySelector('[data-action="delete"]').addEventListener("click", function(){
+      window.deleteSavedGame(index);
+    });
+
+    box.appendChild(item);
+  });
+};
+
+window.loadSavedGame = function(index){
+  const saved = currentSavedGames();
+  const game = saved[index];
+  if(!game) return;
+
+  q("gameTitle").value = game.title || "Gra matematyczna";
+  q("gameType").value = game.type;
+
+  if(typeof onGameTypeChange === "function") onGameTypeChange();
+
+  if(game.type === "match"){
+    q("pairsInput").value = (game.pairs || []).map(function(p){
+      return p.left + " ; " + p.right;
+    }).join("\n");
+  }else if(game.type === "quiz"){
+    q("quizInput").value = (game.questions || []).map(function(question){
+      const wrong = (question.answers || []).filter(function(a){
+        return a !== question.correct;
+      }).slice(0,3);
+      return [question.question, question.correct].concat(wrong).join(" ; ");
+    }).join("\n");
+  }else if(game.type === "memory"){
+    q("memoryInput").value = (game.pairs || []).map(function(p){
+      return p.left + " ; " + p.right;
+    }).join("\n");
+  }else if(game.type === "puzzle"){
+    q("puzzleInput").value = (game.tasks || []).map(function(t){
+      return t.question + " ; " + t.answer;
+    }).join("\n");
+
+    if(game.image && q("puzzleImage")) q("puzzleImage").value = game.image;
+    if(typeof markSelectedPuzzleImage === "function" && game.image) markSelectedPuzzleImage(game.image);
+  }else if(game.type === "safe"){
+    if(q("safeCodeLength")) q("safeCodeLength").value = String(game.codeLength || 4);
+    q("safeInput").value = (game.tasks || []).map(function(t){
+      return t.question + " ; " + t.answer + " ; " + (t.digit || "");
+    }).join("\n");
+  }else if(game.type === "flying" && q("flyingInput")){
+    q("flyingInput").value = (game.questions || []).map(function(question){
+      const wrong = (question.answers || []).filter(function(a){
+        return a !== question.correct;
+      }).slice(0,5);
+      return [question.question, question.correct].concat(wrong).join(" ; ");
+    }).join("\n");
+  }else if(game.type === "training" && q("trainingInput")){
+    q("trainingInput").value = (game.questions || game.tasks || []).map(function(t){
+      return (t.question || t.left || "") + " ; " + (t.answer || t.correct || t.right || "");
+    }).join("\n");
+  }else if((game.type === "fraction-models" || game.type === "fractionModels") && q("fractionModelsInput")){
+    q("fractionModelsInput").value = (game.questions || game.tasks || []).map(function(t){
+      return (t.question || t.left || "") + " ; " + (t.answer || t.correct || t.right || "");
+    }).join("\n");
+  }
+
+  showScreen("creator");
+  buildGame(false);
+};
+
+window.playSavedGame = function(index){
+  const saved = currentSavedGames();
+  const game = saved[index];
+  if(game) openFullscreen(game);
+};
+
+window.deleteSavedGame = async function(index){
+  const saved = currentSavedGames();
+  const game = saved[index];
+  if(!game) return;
+
+  if(!confirm("Usunąć tę grę?")) return;
+
+  try{
+    if(cloudUser){
+      await deleteGameFromCloud(game);
+      await loadCloudGames();
+      showToast("Gra usunięta z chmury.");
+    }else{
+      saved.splice(index, 1);
+      setLocalGames(saved);
+      window.renderSavedGames();
+      showToast("Gra usunięta.");
+    }
+  }catch(e){
+    showToast("Nie udało się usunąć gry.");
+    setStatus("Błąd usuwania: " + escapeHtml(e.message || String(e)));
+  }
+};
+
+onAuthStateChanged(auth, async function(user){
+  cloudUser = user;
+  updateAuthUi();
+  if(user){
+    await loadCloudGames();
+  }else{
+    window.renderSavedGames();
+  }
+});
+
+document.addEventListener("DOMContentLoaded", function(){
+  ensureCloudSyncBox();
+  updateAuthUi();
+
+  const saveBtn = q("saveBtn");
+  const navSaved = q("navSaved");
+
+  if(saveBtn){
+    saveBtn.onclick = function(e){
+      e.preventDefault();
+      window.saveCurrentGame();
+    };
+  }
+
+  if(navSaved){
+    navSaved.onclick = function(e){
+      e.preventDefault();
+      showScreen("saved");
+      window.renderSavedGames();
+    };
+  }
+
+  window.renderSavedGames();
+});
 </script>
 
 </body>
