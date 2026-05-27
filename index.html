@@ -5473,6 +5473,9 @@ const db = getFirestore(app);
 let cloudUser = null;
 let cloudGames = [];
 let cloudReady = false;
+let saveInProgress = false;
+let lastSaveFingerprint = "";
+let lastSaveTime = 0;
 
 function q(id){ return document.getElementById(id); }
 
@@ -5485,7 +5488,53 @@ function getLocalGames(){
 }
 
 function setLocalGames(games){
-  localStorage.setItem("doPotegiGames", JSON.stringify(games || []));
+  localStorage.setItem("doPotegiGames", JSON.stringify(dedupeGames(games || [])));
+}
+
+function stableStringify(value){
+  if(Array.isArray(value)) return "[" + value.map(stableStringify).join(",") + "]";
+  if(value && typeof value === "object"){
+    return "{" + Object.keys(value).sort().map(function(key){
+      return JSON.stringify(key) + ":" + stableStringify(value[key]);
+    }).join(",") + "}";
+  }
+  return JSON.stringify(value);
+}
+
+function gameFingerprint(game){
+  const g = JSON.parse(JSON.stringify(game || {}));
+
+  // Usuwamy pola techniczne, które zmieniają się przy każdym zapisie.
+  ["savedId", "savedAt", "updatedAt", "_serverUpdatedAt", "source", "origin"].forEach(function(key){
+    delete g[key];
+  });
+
+  // Przy quizach/latających odpowiedziach kolejność odpowiedzi może się zmieniać,
+  // więc do porównywania sortujemy listy odpowiedzi.
+  function normalizeItem(item){
+    if(!item || typeof item !== "object") return item;
+    const copy = JSON.parse(JSON.stringify(item));
+    if(Array.isArray(copy.answers)) copy.answers = copy.answers.map(String).sort();
+    return copy;
+  }
+
+  if(Array.isArray(g.questions)) g.questions = g.questions.map(normalizeItem);
+  if(Array.isArray(g.tasks)) g.tasks = g.tasks.map(normalizeItem);
+  if(Array.isArray(g.pairs)) g.pairs = g.pairs.map(normalizeItem);
+
+  return stableStringify(g);
+}
+
+function dedupeGames(games){
+  const seen = new Set();
+  const result = [];
+  (games || []).forEach(function(game){
+    const fp = gameFingerprint(game);
+    if(seen.has(fp)) return;
+    seen.add(fp);
+    result.push(game);
+  });
+  return result;
 }
 
 function gamesCollection(){
@@ -5502,7 +5551,10 @@ function normalizeGameForSave(game){
 }
 
 function currentSavedGames(){
-  return cloudUser ? cloudGames : getLocalGames();
+  if(cloudUser) return dedupeGames(cloudGames);
+  const cleaned = dedupeGames(getLocalGames());
+  setLocalGames(cleaned);
+  return cleaned;
 }
 
 function setStatus(html){
@@ -5516,11 +5568,27 @@ async function loadCloudGames(){
   try{
     const ref = gamesCollection();
     const snap = await getDocs(query(ref, orderBy("savedAt", "desc")));
-    cloudGames = snap.docs.map(d => {
+    const seen = new Set();
+    const duplicatesToDelete = [];
+    cloudGames = [];
+
+    snap.docs.forEach(d => {
       const data = d.data();
       delete data._serverUpdatedAt;
-      return { ...data, savedId: d.id };
+      const game = { ...data, savedId: d.id };
+      const fp = gameFingerprint(game);
+      if(seen.has(fp)){
+        duplicatesToDelete.push(d.id);
+      }else{
+        seen.add(fp);
+        cloudGames.push(game);
+      }
     });
+
+    for(const duplicateId of duplicatesToDelete){
+      await deleteDoc(doc(db, "users", cloudUser.uid, "games", duplicateId));
+    }
+
     setLocalGames(cloudGames);
     cloudReady = true;
     setStatus("Zalogowano jako <strong>" + escapeHtml(cloudUser.email || "konto") + "</strong>. Gry są synchronizowane w chmurze.");
@@ -5554,8 +5622,13 @@ async function syncLocalToCloud(){
     return;
   }
   try{
+    await loadCloudGames();
+    const existing = new Set(cloudGames.map(gameFingerprint));
     for(const raw of local){
       const game = normalizeGameForSave(raw);
+      const fp = gameFingerprint(game);
+      if(existing.has(fp)) continue;
+      existing.add(fp);
       await saveGameToCloud(game);
     }
     await loadCloudGames();
@@ -5686,27 +5759,47 @@ function typeInfo(game){
 }
 
 window.saveCurrentGame = async function(){
+  if(saveInProgress) return;
+
   try{
+    saveInProgress = true;
+
     const rawData = window.getCurrentGameData ? window.getCurrentGameData() : getCurrentGameData();
+    const fp = gameFingerprint(rawData);
+    const now = Date.now();
+
+    // Blokada podwójnego kliknięcia albo dwóch nasłuchiwaczy uruchomionych tym samym kliknięciem.
+    if(fp === lastSaveFingerprint && now - lastSaveTime < 1800){
+      return;
+    }
+
+    lastSaveFingerprint = fp;
+    lastSaveTime = now;
+
     const data = normalizeGameForSave(rawData);
-    const saved = getLocalGames();
-    saved.unshift(data);
-    setLocalGames(saved);
 
     if(cloudUser){
-      await saveGameToCloud(data);
+      const existingCloud = new Set(cloudGames.map(gameFingerprint));
+      if(!existingCloud.has(gameFingerprint(data))){
+        await saveGameToCloud(data);
+      }
       await loadCloudGames();
       showToast("Gra zapisana w chmurze.");
     }else{
+      const localBefore = getLocalGames();
+      const existingLocal = new Set(localBefore.map(gameFingerprint));
+      const next = existingLocal.has(gameFingerprint(data)) ? localBefore : [data].concat(localBefore);
+      setLocalGames(next);
       showToast("Gra zapisana na tym urządzeniu. Zaloguj się, aby zapisać ją w chmurze.");
       window.renderSavedGames();
     }
   }catch(e){
     showToast(e.message || "Nie udało się zapisać gry.");
     setStatus("Błąd zapisu: " + escapeHtml(e.message || String(e)));
+  }finally{
+    setTimeout(function(){ saveInProgress = false; }, 250);
   }
 };
-
 window.renderSavedGames = function(){
   ensureCloudSyncBox();
   const box = q("savedList");
@@ -5865,10 +5958,14 @@ document.addEventListener("DOMContentLoaded", function(){
   const navSaved = q("navSaved");
 
   if(saveBtn){
-    saveBtn.onclick = function(e){
+    // Usuwamy wcześniejsze nasłuchiwacze z podstawowego skryptu, bo powodowały podwójny zapis.
+    const cleanSaveBtn = saveBtn.cloneNode(true);
+    saveBtn.parentNode.replaceChild(cleanSaveBtn, saveBtn);
+    cleanSaveBtn.addEventListener("click", function(e){
       e.preventDefault();
+      e.stopImmediatePropagation();
       window.saveCurrentGame();
-    };
+    });
   }
 
   if(navSaved){
@@ -5879,6 +5976,7 @@ document.addEventListener("DOMContentLoaded", function(){
     };
   }
 
+  setLocalGames(getLocalGames());
   window.renderSavedGames();
 });
 </script>
