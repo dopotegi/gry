@@ -1444,6 +1444,73 @@ body:not(.game-fullscreen-active) .math-keyboard.creator-hidden{
 </style>
 
 
+
+<style id="class-tags-filter-style-v5">
+.class-tags-box{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  margin:8px 0 14px;
+}
+.class-tag-option{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  border:2px solid var(--line);
+  border-radius:999px;
+  padding:7px 12px;
+  background:#fff;
+  color:var(--violet);
+  font-size:18px;
+  font-weight:700;
+  cursor:pointer;
+  user-select:none;
+}
+.class-tag-option input{
+  width:auto;
+  margin:0;
+  accent-color:var(--violet);
+}
+.saved-tag-filter-row{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  width:100%;
+}
+.saved-class-tag-button{
+  border:2px solid rgba(227,6,19,.22);
+  background:#fff;
+  color:var(--red);
+  border-radius:999px;
+  padding:7px 13px;
+  font-size:17px;
+  font-weight:800;
+  cursor:pointer;
+  font-family:'Khand',sans-serif;
+}
+.saved-class-tag-button.active{
+  background:var(--red);
+  color:#fff;
+  border-color:var(--red);
+}
+.saved-class-tags{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  margin:8px 0 4px;
+}
+.saved-class-tag{
+  display:inline-flex;
+  align-items:center;
+  border-radius:999px;
+  padding:4px 10px;
+  background:#fff1f1;
+  color:var(--red);
+  font-size:16px;
+  font-weight:800;
+}
+</style>
 </head>
 
 <body>
@@ -1531,6 +1598,22 @@ body:not(.game-fullscreen-active) .math-keyboard.creator-hidden{
             <option value="flying">Latające odpowiedzi</option>
             <option value="training">Trening</option>
           </select>
+
+          <label>Klasy / tagi</label>
+          <div class="class-tags-box" id="classTagsBox">
+            <label class="class-tag-option"><input type="checkbox" value="Klasa 4"> Klasa 4</label>
+            <label class="class-tag-option"><input type="checkbox" value="Klasa 5"> Klasa 5</label>
+            <label class="class-tag-option"><input type="checkbox" value="Klasa 6"> Klasa 6</label>
+            <label class="class-tag-option"><input type="checkbox" value="Klasa 7"> Klasa 7</label>
+            <label class="class-tag-option"><input type="checkbox" value="Klasa 8"> Klasa 8</label>
+            <label class="class-tag-option"><input type="checkbox" value="1 szkoła średnia"> 1 szkoła średnia</label>
+            <label class="class-tag-option"><input type="checkbox" value="2 szkoła średnia"> 2 szkoła średnia</label>
+            <label class="class-tag-option"><input type="checkbox" value="3 szkoła średnia"> 3 szkoła średnia</label>
+            <label class="class-tag-option"><input type="checkbox" value="4 szkoła średnia"> 4 szkoła średnia</label>
+            <label class="class-tag-option"><input type="checkbox" value="Matura podstawowa"> Matura podstawowa</label>
+            <label class="class-tag-option"><input type="checkbox" value="Matura rozszerzona"> Matura rozszerzona</label>
+          </div>
+          <div class="hint">Możesz zaznaczyć kilka klas/tagów. Potem użyjesz ich jako filtrów w zapisanych grach.</div>
 
           <div id="matchFields">
             <label for="pairsInput">Pary</label>
@@ -2850,6 +2933,29 @@ function renderMemoryGame(data, container, isFullscreen) {
 
   function q(id){ return document.getElementById(id); }
 
+function normalizeTagList(tags){
+  return Array.isArray(tags) ? tags.map(function(t){ return String(t || "").trim(); }).filter(Boolean) : [];
+}
+
+function selectedClassTags(){
+  return Array.from(document.querySelectorAll('#classTagsBox input[type="checkbox"]:checked')).map(function(input){ return input.value; });
+}
+
+function setSelectedClassTags(tags){
+  const chosen = new Set(normalizeTagList(tags));
+  document.querySelectorAll('#classTagsBox input[type="checkbox"]').forEach(function(input){
+    input.checked = chosen.has(input.value);
+  });
+}
+
+function allClassTagsFromGames(){
+  const tags = new Set();
+  currentSavedGames().forEach(function(game){
+    normalizeTagList(game.classTags || game.tags).forEach(function(tag){ tags.add(tag); });
+  });
+  return Array.from(tags).sort(function(a,b){ return a.localeCompare(b, 'pl'); });
+}
+
   function safeNormalizeSlashes(v){
     if(typeof normalizeSlashes === "function") return normalizeSlashes(v);
     return String(v || "").replace(/\\\\/g, "\\").trim();
@@ -3112,6 +3218,29 @@ function renderMemoryGame(data, container, isFullscreen) {
 (function(){
   function q(id){ return document.getElementById(id); }
 
+function normalizeTagList(tags){
+  return Array.isArray(tags) ? tags.map(function(t){ return String(t || "").trim(); }).filter(Boolean) : [];
+}
+
+function selectedClassTags(){
+  return Array.from(document.querySelectorAll('#classTagsBox input[type="checkbox"]:checked')).map(function(input){ return input.value; });
+}
+
+function setSelectedClassTags(tags){
+  const chosen = new Set(normalizeTagList(tags));
+  document.querySelectorAll('#classTagsBox input[type="checkbox"]').forEach(function(input){
+    input.checked = chosen.has(input.value);
+  });
+}
+
+function allClassTagsFromGames(){
+  const tags = new Set();
+  currentSavedGames().forEach(function(game){
+    normalizeTagList(game.classTags || game.tags).forEach(function(tag){ tags.add(tag); });
+  });
+  return Array.from(tags).sort(function(a,b){ return a.localeCompare(b, 'pl'); });
+}
+
   function norm(v){
     if(typeof normalizeSlashes === "function") return normalizeSlashes(v);
     return String(v || "").replace(/\\\\/g, "\\").trim();
@@ -3349,6 +3478,29 @@ function renderMemoryGame(data, container, isFullscreen) {
 <script id="save-games-final-fix">
 (function(){
   function q(id){ return document.getElementById(id); }
+
+function normalizeTagList(tags){
+  return Array.isArray(tags) ? tags.map(function(t){ return String(t || "").trim(); }).filter(Boolean) : [];
+}
+
+function selectedClassTags(){
+  return Array.from(document.querySelectorAll('#classTagsBox input[type="checkbox"]:checked')).map(function(input){ return input.value; });
+}
+
+function setSelectedClassTags(tags){
+  const chosen = new Set(normalizeTagList(tags));
+  document.querySelectorAll('#classTagsBox input[type="checkbox"]').forEach(function(input){
+    input.checked = chosen.has(input.value);
+  });
+}
+
+function allClassTagsFromGames(){
+  const tags = new Set();
+  currentSavedGames().forEach(function(game){
+    normalizeTagList(game.classTags || game.tags).forEach(function(tag){ tags.add(tag); });
+  });
+  return Array.from(tags).sort(function(a,b){ return a.localeCompare(b, 'pl'); });
+}
 
   window.saveCurrentGame = function(){
     try{
@@ -4095,6 +4247,29 @@ document.addEventListener("DOMContentLoaded", ()=>{
 <script id="training-v29-addon">
 (function(){
   function q(id){ return document.getElementById(id); }
+
+function normalizeTagList(tags){
+  return Array.isArray(tags) ? tags.map(function(t){ return String(t || "").trim(); }).filter(Boolean) : [];
+}
+
+function selectedClassTags(){
+  return Array.from(document.querySelectorAll('#classTagsBox input[type="checkbox"]:checked')).map(function(input){ return input.value; });
+}
+
+function setSelectedClassTags(tags){
+  const chosen = new Set(normalizeTagList(tags));
+  document.querySelectorAll('#classTagsBox input[type="checkbox"]').forEach(function(input){
+    input.checked = chosen.has(input.value);
+  });
+}
+
+function allClassTagsFromGames(){
+  const tags = new Set();
+  currentSavedGames().forEach(function(game){
+    normalizeTagList(game.classTags || game.tags).forEach(function(tag){ tags.add(tag); });
+  });
+  return Array.from(tags).sort(function(a,b){ return a.localeCompare(b, 'pl'); });
+}
   function parseTrainingInput(){
     const raw = q("trainingInput").value.trim();
     const tasks = raw.split("\n").map(line=>line.trim()).filter(Boolean).map((line,i)=>{
@@ -5538,9 +5713,33 @@ let saveInProgress = false;
 let lastSaveFingerprint = "";
 let lastSaveTime = 0;
 let savedFilterType = "all";
+let savedFilterTag = "all";
 let savedSearchText = "";
 
 function q(id){ return document.getElementById(id); }
+
+function normalizeTagList(tags){
+  return Array.isArray(tags) ? tags.map(function(t){ return String(t || "").trim(); }).filter(Boolean) : [];
+}
+
+function selectedClassTags(){
+  return Array.from(document.querySelectorAll('#classTagsBox input[type="checkbox"]:checked')).map(function(input){ return input.value; });
+}
+
+function setSelectedClassTags(tags){
+  const chosen = new Set(normalizeTagList(tags));
+  document.querySelectorAll('#classTagsBox input[type="checkbox"]').forEach(function(input){
+    input.checked = chosen.has(input.value);
+  });
+}
+
+function allClassTagsFromGames(){
+  const tags = new Set();
+  currentSavedGames().forEach(function(game){
+    normalizeTagList(game.classTags || game.tags).forEach(function(tag){ tags.add(tag); });
+  });
+  return Array.from(tags).sort(function(a,b){ return a.localeCompare(b, 'pl'); });
+}
 
 function getLocalGames(){
   try{
@@ -5607,6 +5806,8 @@ function gamesCollection(){
 
 function normalizeGameForSave(game){
   const copy = JSON.parse(JSON.stringify(game || {}));
+  copy.classTags = normalizeTagList(copy.classTags || copy.tags || []);
+  copy.tags = copy.classTags;
   copy.savedId = copy.savedId || ("game_" + Date.now() + "_" + Math.random().toString(36).slice(2,8));
   copy.savedAt = copy.savedAt || new Date().toISOString();
   copy.updatedAt = new Date().toISOString();
@@ -5774,57 +5975,110 @@ function ensureCloudSyncBox(){
 
 function ensureSavedFilters(){
   const savedList = q("savedList");
-  if(!savedList || q("savedFilterPanel")) return;
+  if(!savedList) return;
 
-  const panel = document.createElement("div");
-  panel.id = "savedFilterPanel";
-  panel.className = "saved-filter-panel";
-  panel.innerHTML = `
-    <span class="saved-filter-panel-title">Filtry:</span>
-    <input id="savedSearchInput" class="saved-search-box" type="search" placeholder="Szukaj po nazwie gry...">
-    <button class="saved-filter-button active" type="button" data-filter="all">Wszystkie</button>
-    <button class="saved-filter-button" type="button" data-filter="match">Łączenie w pary</button>
-    <button class="saved-filter-button" type="button" data-filter="quiz">Quiz</button>
-    <button class="saved-filter-button" type="button" data-filter="memory">Memory</button>
-    <button class="saved-filter-button" type="button" data-filter="puzzle">Puzzle</button>
-    <button class="saved-filter-button" type="button" data-filter="safe">Sejf</button>
-    <button class="saved-filter-button" type="button" data-filter="flying">Latające odpowiedzi</button>
-    <button class="saved-filter-button" type="button" data-filter="training">Trening</button>
-    <button class="saved-filter-button" type="button" data-filter="fraction-models">Modele ułamków</button>
-  `;
+  let panel = q("savedFilterPanel");
 
-  savedList.parentNode.insertBefore(panel, savedList);
+  if(!panel){
+    panel = document.createElement("div");
+    panel.id = "savedFilterPanel";
+    panel.className = "saved-filter-panel";
+    panel.innerHTML = `
+      <span class="saved-filter-panel-title">Filtry:</span>
+      <input id="savedSearchInput" class="saved-search-box" type="search" placeholder="Szukaj po nazwie gry...">
+      <button class="saved-filter-button active" type="button" data-filter="all">Wszystkie typy</button>
+      <button class="saved-filter-button" type="button" data-filter="match">Łączenie w pary</button>
+      <button class="saved-filter-button" type="button" data-filter="quiz">Quiz</button>
+      <button class="saved-filter-button" type="button" data-filter="memory">Memory</button>
+      <button class="saved-filter-button" type="button" data-filter="puzzle">Puzzle</button>
+      <button class="saved-filter-button" type="button" data-filter="safe">Sejf</button>
+      <button class="saved-filter-button" type="button" data-filter="flying">Latające odpowiedzi</button>
+      <button class="saved-filter-button" type="button" data-filter="training">Trening</button>
+      <button class="saved-filter-button" type="button" data-filter="fraction-models">Modele ułamków</button>
+      <div class="saved-tag-filter-row">
+        <span class="saved-filter-panel-title">Klasy:</span>
+        <span id="savedTagButtonsBox"></span>
+      </div>
+    `;
 
-  const search = q("savedSearchInput");
-  search.value = savedSearchText;
-  search.addEventListener("input", function(){
-    savedSearchText = this.value.trim().toLowerCase();
-    window.renderSavedGames();
-  });
+    savedList.parentNode.insertBefore(panel, savedList);
 
-  panel.querySelectorAll("[data-filter]").forEach(function(btn){
-    btn.addEventListener("click", function(){
-      savedFilterType = btn.dataset.filter || "all";
-      panel.querySelectorAll("[data-filter]").forEach(function(b){
-        b.classList.toggle("active", b.dataset.filter === savedFilterType);
-      });
+    const search = q("savedSearchInput");
+    search.value = savedSearchText;
+    search.addEventListener("input", function(){
+      savedSearchText = this.value.trim().toLowerCase();
       window.renderSavedGames();
     });
-  });
-}
 
+    panel.querySelectorAll("[data-filter]").forEach(function(btn){
+      btn.addEventListener("click", function(){
+        savedFilterType = btn.dataset.filter || "all";
+        panel.querySelectorAll("[data-filter]").forEach(function(b){
+          b.classList.toggle("active", b.dataset.filter === savedFilterType);
+        });
+        window.renderSavedGames();
+      });
+    });
+  }
+
+  panel.querySelectorAll("[data-filter]").forEach(function(btn){
+    btn.classList.toggle("active", (btn.dataset.filter || "all") === savedFilterType);
+  });
+
+  const search = q("savedSearchInput");
+  if(search && document.activeElement !== search){
+    search.value = savedSearchText;
+  }
+
+  // Tagi/klasy muszą aktualizować się dynamicznie po zapisaniu nowej gry.
+  // W poprzedniej wersji panel tworzył się raz, gdy jeszcze nie było tagów,
+  // dlatego później pojawiał się komunikat „Brak tagów...” mimo że gry miały klasy.
+  const box = q("savedTagButtonsBox");
+  if(box){
+    const allTags = allClassTagsFromGames();
+    if(savedFilterTag !== "all" && !allTags.includes(savedFilterTag)){
+      savedFilterTag = "all";
+    }
+
+    const buttonsHtml = [
+      '<button class="saved-class-tag-button" type="button" data-tag-filter="all">Wszystkie klasy</button>'
+    ].concat(allTags.map(function(tag){
+      return '<button class="saved-class-tag-button" type="button" data-tag-filter="' + escapeHtml(tag) + '">' + escapeHtml(tag) + '</button>';
+    })).join('');
+
+    box.innerHTML = buttonsHtml;
+
+    box.querySelectorAll("[data-tag-filter]").forEach(function(btn){
+      btn.classList.toggle("active", (btn.dataset.tagFilter || "all") === savedFilterTag);
+      btn.addEventListener("click", function(){
+        savedFilterTag = btn.dataset.tagFilter || "all";
+        box.querySelectorAll("[data-tag-filter]").forEach(function(b){
+          b.classList.toggle("active", (b.dataset.tagFilter || "all") === savedFilterTag);
+        });
+        window.renderSavedGames();
+      });
+    });
+  }
+}
 function gameMatchesSavedFilters(game){
   if(savedFilterType !== "all"){
     const gameType = game.type === "fractionModels" ? "fraction-models" : game.type;
     if(gameType !== savedFilterType) return false;
   }
 
+  if(savedFilterTag !== "all"){
+    const tags = normalizeTagList(game.classTags || game.tags);
+    if(!tags.includes(savedFilterTag)) return false;
+  }
+
   if(savedSearchText){
     const info = typeInfo(game);
+    const tags = normalizeTagList(game.classTags || game.tags);
     const haystack = [
       game.title || "",
       info.typeLabel || "",
-      info.count || ""
+      info.count || "",
+      tags.join(" ")
     ].join(" ").toLowerCase();
     if(!haystack.includes(savedSearchText)) return false;
   }
@@ -5958,11 +6212,16 @@ window.renderSavedGames = function(){
     if(game.type) item.dataset.gameType = game.type;
 
     const info = typeInfo(game);
+    const classTags = normalizeTagList(game.classTags || game.tags);
+    const tagHtml = classTags.length
+      ? '<div class="saved-class-tags">' + classTags.map(function(tag){ return '<span class="saved-class-tag">' + escapeHtml(tag) + '</span>'; }).join('') + '</div>'
+      : '';
 
     item.innerHTML = `
       <div>
         <span class="saved-type-badge">${escapeHtml(info.typeLabel)}</span>
         <strong>${escapeHtml(game.title || "Gra matematyczna")}</strong>
+        ${tagHtml}
         <span class="small">${escapeHtml(info.count || "")}${cloudUser ? " · chmura" : " · zapis lokalny"}</span>
       </div>
       <div style="display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end;">
@@ -5995,6 +6254,7 @@ window.loadSavedGame = function(index){
 
   q("gameTitle").value = game.title || "Gra matematyczna";
   q("gameType").value = game.type;
+  setSelectedClassTags(game.classTags || game.tags || []);
 
   if(typeof onGameTypeChange === "function") onGameTypeChange();
 
@@ -6117,5 +6377,199 @@ document.addEventListener("DOMContentLoaded", function(){
 });
 </script>
 
+
+<style id="match-click-mode-v4-style">
+.match-click-hint{
+  margin:0 0 16px;
+  color:var(--muted);
+  font-size:19px;
+  line-height:1.25;
+}
+.pair-card.left,
+.pair-card.drop{
+  cursor:pointer !important;
+  touch-action:manipulation !important;
+}
+.pair-card.left.selected-match{
+  border-color:var(--violet) !important;
+  box-shadow:0 0 0 5px rgba(51,0,204,.14) !important;
+  background:linear-gradient(180deg,#fff,#f3efff) !important;
+  transform:scale(1.015) !important;
+}
+.pair-card.removing{
+  opacity:0 !important;
+  transform:scale(.92) !important;
+  pointer-events:none !important;
+  transition:opacity .22s ease, transform .22s ease !important;
+}
+.match-board.compact-match .stack{
+  align-content:start;
+}
+</style>
+<script id="match-click-mode-v4-script">
+(function(){
+  function finishMatchClick(draggedId, zone, leftStack, rightStack, scoreState, scoreBox, total, clearSelection){
+    const dragged = leftStack.querySelector('[data-id="' + CSS.escape(draggedId) + '"]');
+    zone.classList.remove('hover');
+    if(!dragged || zone.dataset.solved) return;
+
+    if(draggedId === zone.dataset.id){
+      zone.dataset.solved = '1';
+      dragged.classList.add('good');
+      zone.classList.add('good');
+      scoreState.value++;
+      scoreBox.textContent = scoreState.value + ' / ' + total;
+
+      setTimeout(function(){
+        dragged.classList.add('removing');
+        zone.classList.add('removing');
+      }, 120);
+
+      setTimeout(function(){
+        if(dragged.parentNode) dragged.parentNode.removeChild(dragged);
+        if(zone.parentNode) zone.parentNode.removeChild(zone);
+      }, 360);
+
+      if(typeof clearSelection === 'function') clearSelection();
+
+      if(scoreState.value === total){
+        setTimeout(function(){
+          showToast('Brawo! Wszystkie pary dopasowane.');
+          if(typeof confetti === 'function') confetti();
+        }, 380);
+      }
+    }else{
+      zone.classList.add('bad');
+      if(dragged) dragged.classList.add('bad');
+      setTimeout(function(){
+        zone.classList.remove('bad');
+        if(dragged) dragged.classList.remove('bad');
+      }, 650);
+    }
+  }
+
+  window.renderMatchGame = function(data, container, isFullscreen){
+    const wrapper = document.createElement('div');
+    wrapper.className = isFullscreen ? 'card' : '';
+    const total = data.pairs.length;
+    const shuffledRight = shuffle(data.pairs);
+    const scoreState = { value: 0 };
+    let selectedId = null;
+    let selectedCard = null;
+
+    wrapper.innerHTML = `
+      <div class="game-head">
+        <div><h2>${escapeHtml(data.title)}</h2></div>
+        <div class="score" id="matchScore">0 / ${total}</div>
+      </div>
+      <p class="match-click-hint">Kliknij kartę z lewej strony, a potem pasującą kartę z prawej. Poprawnie dobrana para znika z planszy.</p>
+      <div class="match-board compact-match">
+        <div>
+          <p class="column-title">Karty do dopasowania</p>
+          <div class="stack" id="leftStack"></div>
+        </div>
+        <div>
+          <p class="column-title">Odpowiedzi</p>
+          <div class="stack" id="rightStack"></div>
+        </div>
+      </div>
+    `;
+
+    container.appendChild(wrapper);
+    const leftStack = wrapper.querySelector('#leftStack');
+    const rightStack = wrapper.querySelector('#rightStack');
+    const scoreBox = wrapper.querySelector('#matchScore');
+
+    function selectCard(card, id){
+      if(selectedCard) selectedCard.classList.remove('selected-match');
+      selectedId = id;
+      selectedCard = card;
+      if(selectedCard) selectedCard.classList.add('selected-match');
+    }
+
+    function clearSelection(){
+      if(selectedCard) selectedCard.classList.remove('selected-match');
+      selectedId = null;
+      selectedCard = null;
+    }
+
+    data.pairs.forEach(function(pair){
+      const card = document.createElement('div');
+      card.className = 'pair-card left';
+      card.draggable = true;
+      card.innerHTML = renderMixed(pair.left);
+      card.dataset.id = pair.id;
+
+      card.addEventListener('dragstart', function(e){
+        if(e.dataTransfer){
+          e.dataTransfer.effectAllowed = 'move';
+          e.dataTransfer.setData('text/plain', pair.id);
+        }
+      });
+
+      card.addEventListener('click', function(){
+        if(card.classList.contains('removing')) return;
+        if(selectedId === pair.id) clearSelection();
+        else selectCard(card, pair.id);
+      });
+
+      leftStack.appendChild(card);
+    });
+
+    shuffledRight.forEach(function(pair){
+      const zone = document.createElement('div');
+      zone.className = 'pair-card drop';
+      zone.innerHTML = renderMixed(pair.right);
+      zone.dataset.id = pair.id;
+
+      zone.addEventListener('dragover', function(e){
+        e.preventDefault();
+        zone.classList.add('hover');
+      });
+      zone.addEventListener('dragleave', function(){ zone.classList.remove('hover'); });
+      zone.addEventListener('drop', function(e){
+        e.preventDefault();
+        const draggedId = e.dataTransfer ? e.dataTransfer.getData('text/plain') : '';
+        if(draggedId) finishMatchClick(draggedId, zone, leftStack, rightStack, scoreState, scoreBox, total, clearSelection);
+      });
+      zone.addEventListener('click', function(){
+        if(!selectedId || zone.dataset.solved || zone.classList.contains('removing')) return;
+        finishMatchClick(selectedId, zone, leftStack, rightStack, scoreState, scoreBox, total, clearSelection);
+      });
+
+      rightStack.appendChild(zone);
+    });
+
+    if(typeof typeset === 'function') typeset(wrapper);
+  };
+})();
+</script>
+
+
+<script id="class-tags-save-wrapper-v5">
+(function(){
+  function q(id){ return document.getElementById(id); }
+  function selectedClassTags(){
+    return Array.from(document.querySelectorAll('#classTagsBox input[type="checkbox"]:checked')).map(function(input){ return input.value; });
+  }
+  function attachTagsWrapper(){
+    if(window.__classTagsWrapperAttached) return;
+    if(typeof window.getCurrentGameData !== 'function') return;
+    window.__classTagsWrapperAttached = true;
+    const originalGetCurrentGameData = window.getCurrentGameData;
+    window.getCurrentGameData = function(){
+      const game = originalGetCurrentGameData.apply(this, arguments);
+      game.classTags = selectedClassTags();
+      game.tags = game.classTags;
+      return game;
+    };
+  }
+  if(document.readyState === 'loading'){
+    document.addEventListener('DOMContentLoaded', attachTagsWrapper);
+  }else{
+    attachTagsWrapper();
+  }
+})();
+</script>
 </body>
 </html>
