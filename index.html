@@ -1512,6 +1512,44 @@ body:not(.game-fullscreen-active) .math-keyboard.creator-hidden{
   font-weight:800;
 }
 </style>
+<style id="fraction-models-start-grid">
+#start .game-type-grid{display:grid !important;grid-template-columns:repeat(3,minmax(240px,1fr)) !important;gap:22px !important;align-items:stretch !important;}
+@media(max-width:1050px){#start .game-type-grid{grid-template-columns:repeat(2,minmax(240px,1fr)) !important;}}
+@media(max-width:650px){#start .game-type-grid{grid-template-columns:1fr !important;}}
+</style>
+
+<style id="fraction-bank-cleanup-v55">
+.bank-note{
+  font-size:18px;
+  color:#6b6b6b;
+  margin:8px 0 14px;
+  text-align:center;
+}
+</style>
+
+<style id="fraction-models-unique-bank-style-v56">
+.fm-bank-wrap{
+  border:2px solid var(--line);
+  border-radius:26px;
+  padding:14px 18px 18px;
+  background:#fff;
+  width:min(760px,100%);
+}
+
+.fm-bank-wrap .bank-note{
+  font-size:18px;
+  color:#666;
+  text-align:center;
+  margin-bottom:12px;
+}
+
+.fm-bank-wrap .fm-bank{
+  border:none !important;
+  padding:0 !important;
+  width:100% !important;
+}
+</style>
+
 </head>
 
 <body>
@@ -1577,6 +1615,11 @@ body:not(.game-fullscreen-active) .math-keyboard.creator-hidden{
             <h2>Trening</h2>
             <p>Jeden przykład na ekranie i miejsce na odpowiedź.</p>
           </div>
+          <div class="game-type" id="startFractionModels">
+            <div class="icon">◐</div>
+            <h2>Modele ułamków</h2>
+            <p>Dopasuj graficzny model do ułamka mieszanego.</p>
+          </div>
 
           <div class="game-type" id="startSort">
             <div class="icon">🧺</div>
@@ -1605,6 +1648,7 @@ body:not(.game-fullscreen-active) .math-keyboard.creator-hidden{
             <option value="safe">Sejf</option>
             <option value="flying">Latające odpowiedzi</option>
             <option value="training">Trening</option>
+            <option value="fractionModels">Modele ułamków</option>
           </select>
 
           <label>Klasy / tagi</label>
@@ -1749,6 +1793,26 @@ Ile wynosi \frac{1}{2}+\frac{1}{4}? ; \frac{3}{4} ; \frac{2}{6} ; \frac{1}{8} ; 
             </select>
 
             <div class="hint">Format: przykład ; poprawna odpowiedź. Przy odpowiedziach z ułamkami działa klawiatura matematyczna.</div>
+          </div>
+
+          
+
+          <div id="fractionModelsFields" style="display:none">
+            <label for="fractionModelsInput">Poziomy / przykłady</label>
+            <textarea id="fractionModelsInput">2 ; 1 ; 4 ; koło
+2 ; 1 ; 2 ; prostokąt
+1 ; 3 ; 4 ; koło
+1 ; 1 ; 3 ; prostokąt
+3 ; 1 ; 3 ; koło
+3 ; 3 ; 7 ; koło</textarea>
+
+            <label for="fractionModelsMode">Tryb gry</label>
+            <select id="fractionModelsMode">
+              <option value="build" selected>uczeń buduje model z elementów</option>
+              <option value="choose">uczeń wybiera pasujący model</option>
+            </select>
+
+            <div class="hint">Format: całości ; licznik ; mianownik ; kształt. Kształt: koło albo prostokąt.</div>
           </div>
 
           <div class="creator-actions">
@@ -7042,6 +7106,824 @@ Wielokrotności 5 ; 10 ; 25 ; 35 ; 40</textarea>
     attachSortToCurrentGameData();
     window.onGameTypeChange();
   });
+})();
+</script>
+
+<style id="fraction-models-style">
+.fm-stage{border:2px solid var(--line);border-radius:32px;background:linear-gradient(135deg,#fff 0%,#f7f4ff 100%);min-height:620px;padding:26px;position:relative}
+.fm-top{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:22px}
+.fm-question{font-size:44px;font-weight:800;color:var(--violet)}
+.fm-layout{display:grid;grid-template-columns:1fr 360px;gap:28px;align-items:start}
+.fm-work{display:flex;flex-direction:column;align-items:center;gap:20px;min-height:430px;justify-content:center}
+.fm-target{border:2px dashed var(--violet);border-radius:28px;min-height:190px;width:min(620px,100%);display:flex;align-items:center;justify-content:center;gap:10px;padding:22px;background:#fff;flex-wrap:wrap;font-size:22px;text-align:center;color:#666}
+.fm-bank{border:2px solid var(--line);border-radius:26px;padding:18px;background:#fff;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;width:min(760px,100%)}
+.fm-answer-list{display:flex;flex-direction:column;gap:14px}
+.fm-answer{border:2px solid var(--line);border-radius:22px;padding:16px 18px;background:#fff;font-size:34px;color:#111;font-weight:700;cursor:pointer;min-height:92px;display:flex;align-items:center;justify-content:center}
+.fm-answer.good{border-color:var(--green);background:#effaf5}.fm-answer.bad{border-color:var(--red);background:#fff1f1}
+.fm-piece{border:2px solid rgba(51,0,204,.22);border-radius:18px;background:#fff;padding:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;min-width:78px;min-height:78px;transition:.15s}
+.fm-piece:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(51,0,204,.12)}
+.fm-controls{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.fm-feedback{min-height:32px;text-align:center;font-size:24px;font-weight:800}.fm-feedback.good{color:var(--green)}.fm-feedback.bad{color:var(--red)}
+.fm-shape svg{width:70px;height:70px;overflow:visible}.fm-target .fm-shape svg{width:88px;height:88px}
+.fm-choice-grid{display:grid;grid-template-columns:repeat(3,minmax(160px,1fr));gap:18px}
+.fm-choice{border:2px solid var(--line);border-radius:24px;background:#fff;min-height:160px;padding:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:8px}
+.fm-choice:hover{border-color:var(--violet)}.fm-choice.good{background:#effaf5;border-color:var(--green)}.fm-choice.bad{background:#fff1f1;border-color:var(--red)}
+@media(max-width:980px){.fm-layout{grid-template-columns:1fr}.fm-answer-list{flex-direction:row;flex-wrap:wrap}.fm-answer{flex:1 1 180px}.fm-choice-grid{grid-template-columns:1fr}}
+</style>
+
+<script id="fraction-models-script">
+(function(){
+  function q(id){return document.getElementById(id);}
+
+  function parseFractionModelsInput(){
+    const raw = q("fractionModelsInput").value.trim();
+    const tasks = raw.split("\n").map(line=>line.trim()).filter(Boolean).map((line,i)=>{
+      const parts = line.split(";").map(p=>p.trim());
+      if(parts.length < 3) throw new Error("W linijce " + (i+1) + " wpisz: całości ; licznik ; mianownik.");
+      const whole = Number(parts[0]);
+      const num = Number(parts[1]);
+      const den = Number(parts[2]);
+      const shape = (parts[3] || "koło").toLowerCase();
+      if(!Number.isFinite(whole) || !Number.isFinite(num) || !Number.isFinite(den) || den <= 0) throw new Error("Błędne dane w linijce " + (i+1) + ".");
+      return {whole, num, den, shape:shape.includes("prost") ? "rect" : "circle"};
+    });
+    return {tasks, mode:q("fractionModelsMode").value || "build"};
+  }
+
+  window.parseFractionModelsInput = parseFractionModelsInput;
+
+  const oldGet = window.getCurrentGameData;
+  window.getCurrentGameData = function(){
+    const type = q("gameType").value;
+    const title = q("gameTitle").value.trim() || "Gra matematyczna";
+    if(type === "fractionModels"){
+      const parsed = parseFractionModelsInput();
+      return {type:"fractionModels", title, tasks:parsed.tasks, mode:parsed.mode};
+    }
+    return oldGet();
+  };
+
+  const oldType = window.onGameTypeChange;
+  window.onGameTypeChange = function(){
+    if(oldType) oldType();
+    const fields = q("fractionModelsFields");
+    if(fields) fields.style.display = q("gameType").value === "fractionModels" ? "block" : "none";
+  };
+
+  const oldRender = window.renderGame;
+  window.renderGame = function(data, container, isFullscreen){
+    if(data && data.type === "fractionModels"){
+      container.innerHTML = "";
+      renderFractionModelsGame(data, container, isFullscreen);
+      if(typeof typeset === "function") typeset(container);
+      return;
+    }
+    oldRender(data, container, isFullscreen);
+  };
+
+  function fracLatex(t){return "\\(" + t.whole + "\\frac{" + t.num + "}{" + t.den + "}\\)";}
+
+  function circleSvg(fillParts, den){
+    const r=32,cx=36,cy=36; let parts="";
+    for(let i=0;i<den;i++){
+      const a1=-90+i*360/den, a2=-90+(i+1)*360/den;
+      const x1=cx+r*Math.cos(a1*Math.PI/180), y1=cy+r*Math.sin(a1*Math.PI/180);
+      const x2=cx+r*Math.cos(a2*Math.PI/180), y2=cy+r*Math.sin(a2*Math.PI/180);
+      const large=(360/den)>180?1:0;
+      parts += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${i<fillParts ? '#E30613' : '#fff'}" stroke="#111" stroke-width="1.6"/>`;
+    }
+    return `<span class="fm-shape"><svg viewBox="0 0 72 72">${parts}<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#111" stroke-width="1.8"/></svg></span>`;
+  }
+
+  function rectSvg(fillParts, den){
+    const w=64,h=54,x=4,y=9; let parts="";
+    for(let i=0;i<den;i++){
+      const pw=w/den;
+      parts += `<rect x="${x+i*pw}" y="${y}" width="${pw}" height="${h}" fill="${i<fillParts ? '#3300CC' : '#fff'}" stroke="#111" stroke-width="1.4"/>`;
+    }
+    return `<span class="fm-shape"><svg viewBox="0 0 72 72">${parts}</svg></span>`;
+  }
+
+  function shapeHtml(shape, fillParts, den){return shape === "rect" ? rectSvg(fillParts, den) : circleSvg(fillParts, den);}
+
+  function modelHtml(task){
+    let out="";
+    for(let i=0;i<task.whole;i++) out += shapeHtml(task.shape, task.den, task.den);
+    if(task.num>0) out += shapeHtml(task.shape, task.num, task.den);
+    return out;
+  }
+
+  function makeWrong(task){
+    return [
+      {whole:Math.max(0,task.whole-1),num:task.num,den:task.den,shape:task.shape},
+      {whole:task.whole+1,num:task.num,den:task.den,shape:task.shape},
+      {whole:task.whole,num:Math.max(1,Math.min(task.den-1,task.num+1)),den:task.den,shape:task.shape},
+      {whole:task.whole,num:Math.max(1,task.num-1),den:task.den,shape:task.shape}
+    ].filter(o=>!(o.whole===task.whole&&o.num===task.num&&o.den===task.den));
+  }
+
+  window.renderFractionModelsGame = function(data, container, isFullscreen){
+    const wrapper=document.createElement("div");
+    wrapper.className=isFullscreen?"card":"";
+    let index=0, chosen=[];
+    wrapper.innerHTML=`<div class="game-head"><div><h2>${escapeHtml(data.title)}</h2></div><div class="score" id="fmScore">1 / ${data.tasks.length}</div></div><div class="fm-stage" id="fmStage"></div>`;
+    container.appendChild(wrapper);
+    const stage=wrapper.querySelector("#fmStage"), score=wrapper.querySelector("#fmScore");
+
+    function finish(){
+      stage.innerHTML=`<div class="training-card"><h2>Brawo!</h2><p>Wszystkie modele dopasowane.</p><button class="btn" type="button" id="fmAgain">Zacznij od nowa</button></div>`;
+      stage.querySelector("#fmAgain").onclick=()=>window.renderFractionModelsGame(data, container, isFullscreen);
+      if(typeof confetti==="function") confetti();
+    }
+
+    function next(){ if(index<data.tasks.length-1){index++; draw();} else finish(); }
+
+    function draw(){
+      chosen=[];
+      const task=data.tasks[index];
+      score.textContent=(index+1)+" / "+data.tasks.length;
+
+      if(data.mode==="choose"){
+        const choices=shuffle([task].concat(makeWrong(task)).slice(0,3));
+        stage.innerHTML=`<div class="fm-top"><div class="fm-question">Wskaż model przedstawiający ${fracLatex(task)}</div></div><div class="fm-choice-grid">${choices.map((c,i)=>`<button type="button" class="fm-choice" data-good="${c.whole===task.whole&&c.num===task.num&&c.den===task.den}">${modelHtml(c)}</button>`).join("")}</div><div class="fm-feedback" id="fmFeedback"></div>`;
+        stage.querySelectorAll(".fm-choice").forEach(btn=>{
+          btn.onclick=function(){
+            const fb=stage.querySelector("#fmFeedback");
+            if(btn.dataset.good==="true"){btn.classList.add("good");fb.textContent="Dobrze!";fb.className="fm-feedback good";setTimeout(next,550);}
+            else{btn.classList.add("bad");fb.textContent="Spróbuj jeszcze raz.";fb.className="fm-feedback bad";setTimeout(()=>btn.classList.remove("bad"),550);}
+          };
+        });
+      }else{
+        const bank=[];
+        for(let i=0;i<task.whole;i++) bank.push({fill:task.den,den:task.den,shape:task.shape});
+        if(task.num>0) bank.push({fill:task.num,den:task.den,shape:task.shape});
+        bank.push({fill:Math.max(1,task.num-1),den:task.den,shape:task.shape});
+        bank.push({fill:Math.min(task.den,task.num+1),den:task.den,shape:task.shape});
+
+        stage.innerHTML=`<div class="fm-top"><div class="fm-question">Zbuduj model: ${fracLatex(task)}</div></div><div class="fm-layout"><div class="fm-work"><div class="fm-target" id="fmTarget">Klikaj elementy z banku, aby zbudować model.</div><div class="fm-bank" id="fmBank"></div><div class="fm-controls"><button class="btn secondary" id="fmClear" type="button">Wyczyść</button><button class="btn" id="fmCheck" type="button">Sprawdź</button></div><div class="fm-feedback" id="fmFeedback"></div></div><div class="fm-answer-list"><div class="fm-answer">${fracLatex(task)}</div></div></div>`;
+
+        const target=stage.querySelector("#fmTarget"), bankBox=stage.querySelector("#fmBank"), feedback=stage.querySelector("#fmFeedback");
+        shuffle(bank).forEach(piece=>{
+          const btn=document.createElement("button");
+          btn.type="button"; btn.className="fm-piece"; btn.innerHTML=shapeHtml(piece.shape,piece.fill,piece.den);
+          btn.onclick=function(){chosen.push(piece);target.innerHTML=chosen.map(p=>shapeHtml(p.shape,p.fill,p.den)).join("");};
+          bankBox.appendChild(btn);
+        });
+
+        stage.querySelector("#fmClear").onclick=function(){chosen=[];target.textContent="Klikaj elementy z banku, aby zbudować model.";feedback.textContent="";};
+        stage.querySelector("#fmCheck").onclick=function(){
+          const wholeCount=chosen.filter(p=>p.fill===task.den).length;
+          const parts=chosen.filter(p=>p.fill!==task.den);
+          const partSum=parts.reduce((s,p)=>s+p.fill,0);
+          const ok=wholeCount===task.whole && partSum===task.num && parts.length===(task.num>0?1:0);
+          if(ok){feedback.textContent="Dobrze!";feedback.className="fm-feedback good";setTimeout(next,550);}
+          else{feedback.textContent="Jeszcze nie. Sprawdź liczbę całości i część ułamkową.";feedback.className="fm-feedback bad";}
+        };
+      }
+      if(typeof typeset==="function") typeset(stage);
+    }
+    draw();
+  };
+
+  function attachTile(){
+    const tile=q("startFractionModels");
+    if(tile) tile.onclick=function(){selectGameType("fractionModels");};
+  }
+  document.addEventListener("DOMContentLoaded", attachTile);
+  setTimeout(attachTile,300);
+})();
+</script>
+
+
+<script id="start-tiles-clicks-v54">
+(function(){
+  function go(type){
+    if(typeof selectGameType === "function"){
+      selectGameType(type);
+      return;
+    }
+
+    const select = document.getElementById("gameType");
+    if(select) select.value = type;
+
+    if(typeof onGameTypeChange === "function") onGameTypeChange();
+    if(typeof showScreen === "function") showScreen("creator");
+    if(typeof buildGame === "function") buildGame(false);
+  }
+
+  function attach(){
+    const map = {
+      startMatch: "match",
+      startQuiz: "quiz",
+      startMemory: "memory",
+      startPuzzle: "puzzle",
+      startSafe: "safe",
+      startFlying: "flying",
+      startTraining: "training",
+      startFractionModels: "fractionModels"
+    };
+
+    Object.keys(map).forEach(function(id){
+      const tile = document.getElementById(id);
+      if(tile){
+        tile.onclick = function(e){
+          e.preventDefault();
+          go(map[id]);
+        };
+      }
+    });
+  }
+
+  document.addEventListener("DOMContentLoaded", attach);
+  setTimeout(attach, 300);
+  setTimeout(attach, 900);
+})();
+</script>
+
+
+<script id="fraction-models-unique-bank-v56">
+(function(){
+
+  function circleSvg(fillParts, den){
+    const r = 32, cx = 36, cy = 36;
+    let parts = "";
+
+    for(let i = 0; i < den; i++){
+      const a1 = -90 + i * 360 / den;
+      const a2 = -90 + (i + 1) * 360 / den;
+      const x1 = cx + r * Math.cos(a1 * Math.PI / 180);
+      const y1 = cy + r * Math.sin(a1 * Math.PI / 180);
+      const x2 = cx + r * Math.cos(a2 * Math.PI / 180);
+      const y2 = cy + r * Math.sin(a2 * Math.PI / 180);
+      const large = (360 / den) > 180 ? 1 : 0;
+
+      parts += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${i < fillParts ? '#E30613' : '#fff'}" stroke="#111" stroke-width="1.6"/>`;
+    }
+
+    return `<span class="fm-shape"><svg viewBox="0 0 72 72">${parts}<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#111" stroke-width="1.8"/></svg></span>`;
+  }
+
+  function rectSvg(fillParts, den){
+    const w = 64, h = 54, x = 4, y = 9;
+    let parts = "";
+
+    for(let i = 0; i < den; i++){
+      const pw = w / den;
+      parts += `<rect x="${x + i * pw}" y="${y}" width="${pw}" height="${h}" fill="${i < fillParts ? '#3300CC' : '#fff'}" stroke="#111" stroke-width="1.4"/>`;
+    }
+
+    return `<span class="fm-shape"><svg viewBox="0 0 72 72">${parts}</svg></span>`;
+  }
+
+  function shapeHtml(shape, fillParts, den){
+    return shape === "rect" ? rectSvg(fillParts, den) : circleSvg(fillParts, den);
+  }
+
+  function fracLatex(task){
+    return "\\(" + task.whole + "\\frac{" + task.num + "}{" + task.den + "}\\)";
+  }
+
+  function modelHtml(task){
+    let out = "";
+
+    for(let i = 0; i < task.whole; i++){
+      out += shapeHtml(task.shape, task.den, task.den);
+    }
+
+    if(task.num > 0){
+      out += shapeHtml(task.shape, task.num, task.den);
+    }
+
+    return out;
+  }
+
+  function uniqueBank(task){
+    const bank = [];
+
+    // Jedna pełna figura. Można użyć jej wielokrotnie.
+    bank.push({
+      kind: "whole",
+      fill: task.den,
+      den: task.den,
+      shape: task.shape
+    });
+
+    // Elementy pasujące do zadania.
+    for(let fill = 1; fill < task.den; fill++){
+      bank.push({
+        kind: "part",
+        fill,
+        den: task.den,
+        shape: task.shape,
+        distractor: false
+      });
+    }
+
+    // Zmyłki: części podzielone na inną liczbę równych części.
+    // Uczeń musi zwrócić uwagę nie tylko na zamalowany fragment,
+    // ale także na mianownik i sposób podziału figury.
+    const candidateDens = [
+      task.den - 2,
+      task.den - 1,
+      task.den + 1,
+      task.den + 2,
+      2, 3, 4, 5, 6, 8, 10
+    ].filter(den => den >= 2 && den <= 12 && den !== task.den);
+
+    const distractorDens = [...new Set(candidateDens)].slice(0, 4);
+
+    distractorDens.forEach(den => {
+      const fills = new Set([
+        1,
+        Math.max(1, Math.min(den - 1, task.num)),
+        Math.max(1, Math.min(den - 1, task.num + 1)),
+        den - 1
+      ]);
+
+      [...fills].forEach(fill => {
+        if(fill > 0 && fill < den){
+          bank.push({
+            kind: "part",
+            fill,
+            den,
+            shape: task.shape,
+            distractor: true
+          });
+        }
+      });
+    });
+
+    return shuffle(bank);
+  }
+
+  function makeWrong(task){
+    return [
+      {whole: Math.max(0, task.whole - 1), num: task.num, den: task.den, shape: task.shape},
+      {whole: task.whole + 1, num: task.num, den: task.den, shape: task.shape},
+      {whole: task.whole, num: Math.max(1, Math.min(task.den - 1, task.num + 1)), den: task.den, shape: task.shape},
+      {whole: task.whole, num: Math.max(1, task.num - 1), den: task.den, shape: task.shape}
+    ].filter(o => !(o.whole === task.whole && o.num === task.num && o.den === task.den));
+  }
+
+  window.renderFractionModelsGame = function(data, container, isFullscreen){
+    const wrapper = document.createElement("div");
+    wrapper.className = isFullscreen ? "card" : "";
+
+    let index = 0;
+    let chosen = [];
+
+    wrapper.innerHTML = `
+      <div class="game-head">
+        <div><h2>${escapeHtml(data.title)}</h2></div>
+        <div class="score" id="fmScore">1 / ${data.tasks.length}</div>
+      </div>
+      <div class="fm-stage" id="fmStage"></div>
+    `;
+
+    container.innerHTML = "";
+    container.appendChild(wrapper);
+
+    const stage = wrapper.querySelector("#fmStage");
+    const score = wrapper.querySelector("#fmScore");
+
+    function finish(){
+      stage.innerHTML = `
+        <div class="training-card">
+          <h2>Brawo!</h2>
+          <p>Wszystkie modele dopasowane.</p>
+          <button class="btn" type="button" id="fmAgain">Zacznij od nowa</button>
+        </div>
+      `;
+
+      stage.querySelector("#fmAgain").onclick = function(){
+        window.renderFractionModelsGame(data, container, isFullscreen);
+      };
+
+      if(typeof confetti === "function") confetti();
+    }
+
+    function next(){
+      if(index < data.tasks.length - 1){
+        index++;
+        draw();
+      }else{
+        finish();
+      }
+    }
+
+    function draw(){
+      chosen = [];
+      const task = data.tasks[index];
+      score.textContent = (index + 1) + " / " + data.tasks.length;
+
+      if(data.mode === "choose"){
+        const choices = shuffle([task].concat(makeWrong(task)).slice(0, 3));
+
+        stage.innerHTML = `
+          <div class="fm-top">
+            <div class="fm-question">Wybierz model dla ${fracLatex(task)}</div>
+          </div>
+          <div class="fm-choice-grid">
+            ${choices.map(c => `
+              <button type="button" class="fm-choice" data-good="${c.whole === task.whole && c.num === task.num && c.den === task.den}">
+                ${modelHtml(c)}
+              </button>
+            `).join("")}
+          </div>
+          <div class="fm-feedback" id="fmFeedback"></div>
+        `;
+
+        stage.querySelectorAll(".fm-choice").forEach(btn => {
+          btn.onclick = function(){
+            const fb = stage.querySelector("#fmFeedback");
+
+            if(btn.dataset.good === "true"){
+              btn.classList.add("good");
+              fb.textContent = "Dobrze!";
+              fb.className = "fm-feedback good";
+              setTimeout(next, 550);
+            }else{
+              btn.classList.add("bad");
+              fb.textContent = "Spróbuj jeszcze raz.";
+              fb.className = "fm-feedback bad";
+              setTimeout(() => btn.classList.remove("bad"), 550);
+            }
+          };
+        });
+
+      }else{
+        stage.innerHTML = `
+          <div class="fm-top">
+            <div class="fm-question">Zbuduj model: ${fracLatex(task)}</div>
+          </div>
+
+          <div class="fm-layout">
+            <div class="fm-work">
+              <div class="fm-target" id="fmTarget">Klikaj elementy z banku, aby zbudować model.</div>
+
+              <div class="fm-bank-wrap">
+                <div class="bank-note">Każdy element możesz kliknąć wiele razy.</div>
+                <div class="fm-bank" id="fmBank"></div>
+              </div>
+
+              <div class="fm-controls">
+                <button class="btn secondary" id="fmClear" type="button">Wyczyść</button>
+                <button class="btn" id="fmCheck" type="button">Sprawdź</button>
+              </div>
+
+              <div class="fm-feedback" id="fmFeedback"></div>
+            </div>
+
+            <div class="fm-answer-list">
+              <div class="fm-answer">${fracLatex(task)}</div>
+            </div>
+          </div>
+        `;
+
+        const target = stage.querySelector("#fmTarget");
+        const bankBox = stage.querySelector("#fmBank");
+        const feedback = stage.querySelector("#fmFeedback");
+
+        uniqueBank(task).forEach(piece => {
+          const btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "fm-piece";
+          btn.innerHTML = shapeHtml(piece.shape, piece.fill, piece.den);
+
+          btn.onclick = function(){
+            chosen.push(piece);
+            target.innerHTML = chosen.map(p => shapeHtml(p.shape, p.fill, p.den)).join("");
+          };
+
+          bankBox.appendChild(btn);
+        });
+
+        stage.querySelector("#fmClear").onclick = function(){
+          chosen = [];
+          target.textContent = "Klikaj elementy z banku, aby zbudować model.";
+          feedback.textContent = "";
+        };
+
+        stage.querySelector("#fmCheck").onclick = function(){
+          function gcd(a, b){
+            a = Math.abs(a); b = Math.abs(b);
+            while(b){ const t = b; b = a % b; a = t; }
+            return a || 1;
+          }
+
+          function addFraction(aNum, aDen, bNum, bDen){
+            const num = aNum * bDen + bNum * aDen;
+            const den = aDen * bDen;
+            const g = gcd(num, den);
+            return [num / g, den / g];
+          }
+
+          function latexMixed(num, den){
+            const whole = Math.floor(num / den);
+            let rest = num - whole * den;
+            if(rest === 0) return "\\(" + whole + "\\)";
+            const g = gcd(rest, den);
+            rest /= g;
+            den /= g;
+            if(whole > 0) return "\\(" + whole + "\\frac{" + rest + "}{" + den + "}\\)";
+            return "\\(\\frac{" + rest + "}{" + den + "}\\)";
+          }
+
+          if(!chosen.length){
+            feedback.textContent = "Najpierw wybierz elementy z banku.";
+            feedback.className = "fm-feedback bad";
+            return;
+          }
+
+          // Najpierw składamy pełne całości osobno dla każdego rodzaju podziału.
+          const grouped = new Map();
+          chosen.forEach(piece => {
+            const den = Math.max(1, Number(piece.den) || 1);
+            const fill = Math.max(0, Number(piece.fill) || 0);
+            grouped.set(den, (grouped.get(den) || 0) + fill);
+          });
+
+          let builtWholes = 0;
+          const leftovers = [];
+          grouped.forEach((filled, den) => {
+            builtWholes += Math.floor(filled / den);
+            const rest = filled % den;
+            if(rest) leftovers.push({num: rest, den});
+          });
+
+          // Pozostała część ułamkowa musi pochodzić z jednego rodzaju podziału.
+          // Dzięki temu można użyć np. 4 połówek jako 2 całości i 2 ósmych jako 1/4,
+          // ale przypadkowa mieszanka różnych niepełnych figur nie jest uznawana za model.
+          let restNum = 0;
+          let restDen = 1;
+          if(leftovers.length === 1){
+            restNum = leftovers[0].num;
+            restDen = leftovers[0].den;
+          }
+
+          const fractionalMatches = leftovers.length === 0
+            ? task.num === 0
+            : leftovers.length === 1 && restNum * task.den === task.num * restDen;
+          const ok = builtWholes === task.whole && fractionalMatches;
+
+          // Osobno liczymy zwykłą wartość wybranych elementów tylko do komunikatu.
+          let sumNum = 0;
+          let sumDen = 1;
+          chosen.forEach(piece => {
+            [sumNum, sumDen] = addFraction(
+              sumNum,
+              sumDen,
+              Number(piece.fill) || 0,
+              Number(piece.den) || 1
+            );
+          });
+
+          if(ok){
+            feedback.innerHTML = "Dobrze! Zbudowany model przedstawia " + fracLatex(task) + ".";
+            feedback.className = "fm-feedback good";
+            if(typeof typeset === "function") typeset(feedback);
+            setTimeout(next, 700);
+          }else{
+            const builtLatex = latexMixed(sumNum, sumDen);
+            let hint = "";
+            if(leftovers.length > 1){
+              hint = " Najpierw połącz elementy o takim samym podziale w pełne całości.";
+            }
+            feedback.innerHTML = "Jeszcze nie — wybrane elementy dają razem " + builtLatex + "." + hint;
+            feedback.className = "fm-feedback bad";
+            if(typeof typeset === "function") typeset(feedback);
+          }
+        };
+      }
+
+      if(typeof typeset === "function") typeset(stage);
+    }
+
+    draw();
+  };
+
+})();
+</script>
+
+
+<script id="fraction-models-harder-choices-v57">
+(function(){
+
+  function circleSvg(fillParts, den){
+    const r = 32, cx = 36, cy = 36;
+    let parts = "";
+
+    for(let i = 0; i < den; i++){
+      const a1 = -90 + i * 360 / den;
+      const a2 = -90 + (i + 1) * 360 / den;
+      const x1 = cx + r * Math.cos(a1 * Math.PI / 180);
+      const y1 = cy + r * Math.sin(a1 * Math.PI / 180);
+      const x2 = cx + r * Math.cos(a2 * Math.PI / 180);
+      const y2 = cy + r * Math.sin(a2 * Math.PI / 180);
+      const large = (360 / den) > 180 ? 1 : 0;
+
+      parts += `<path d="M ${cx} ${cy} L ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2} Z" fill="${i < fillParts ? '#E30613' : '#fff'}" stroke="#111" stroke-width="1.6"/>`;
+    }
+
+    return `<span class="fm-shape"><svg viewBox="0 0 72 72">${parts}<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#111" stroke-width="1.8"/></svg></span>`;
+  }
+
+  function rectSvg(fillParts, den){
+    const w = 64, h = 54, x = 4, y = 9;
+    let parts = "";
+
+    for(let i = 0; i < den; i++){
+      const pw = w / den;
+      parts += `<rect x="${x + i * pw}" y="${y}" width="${pw}" height="${h}" fill="${i < fillParts ? '#3300CC' : '#fff'}" stroke="#111" stroke-width="1.4"/>`;
+    }
+
+    return `<span class="fm-shape"><svg viewBox="0 0 72 72">${parts}</svg></span>`;
+  }
+
+  function shapeHtml(shape, fillParts, den){
+    return shape === "rect" ? rectSvg(fillParts, den) : circleSvg(fillParts, den);
+  }
+
+  function fracLatex(task){
+    return "\\(" + task.whole + "\\frac{" + task.num + "}{" + task.den + "}\\)";
+  }
+
+  function modelHtml(task){
+    let out = "";
+
+    for(let i = 0; i < task.whole; i++){
+      out += shapeHtml(task.shape, task.den, task.den);
+    }
+
+    if(task.num > 0){
+      out += shapeHtml(task.shape, task.num, task.den);
+    }
+
+    return out;
+  }
+
+  function uniqueChoiceKey(t){
+    return [t.whole, t.num, t.den, t.shape].join("|");
+  }
+
+  function harderWrongChoices(task){
+    const choices = [];
+    const seen = new Set([uniqueChoiceKey(task)]);
+    const correctValue = task.whole + task.num / task.den;
+
+    function add(candidate){
+      if(candidate.whole < 0 || candidate.num <= 0 || candidate.den <= 1) return;
+      if(candidate.num >= candidate.den) return;
+
+      // Nie dodajemy modelu równoważnego poprawnej odpowiedzi.
+      const candidateValue = candidate.whole + candidate.num / candidate.den;
+      if(Math.abs(candidateValue - correctValue) < 0.0000001) return;
+
+      const key = uniqueChoiceKey(candidate);
+      if(seen.has(key)) return;
+
+      seen.add(key);
+      choices.push(candidate);
+    }
+
+    // Najmocniejsze zmyłki: ta sama liczba całości i ten sam mianownik.
+    add({whole:task.whole, num:task.num - 1, den:task.den, shape:task.shape});
+    add({whole:task.whole, num:task.num + 1, den:task.den, shape:task.shape});
+    add({whole:task.whole, num:task.num - 2, den:task.den, shape:task.shape});
+    add({whole:task.whole, num:task.num + 2, den:task.den, shape:task.shape});
+
+    // Ten sam licznik, ale bardzo podobny mianownik.
+    add({whole:task.whole, num:task.num, den:task.den - 1, shape:task.shape});
+    add({whole:task.whole, num:task.num, den:task.den + 1, shape:task.shape});
+    add({whole:task.whole, num:task.num, den:task.den - 2, shape:task.shape});
+    add({whole:task.whole, num:task.num, den:task.den + 2, shape:task.shape});
+
+    // Część dopełniająca do całości, np. 3/8 zamiast 5/8.
+    add({whole:task.whole, num:task.den - task.num, den:task.den, shape:task.shape});
+
+    // Zmyłka w liczbie całości przy zachowaniu tej samej części ułamkowej.
+    add({whole:task.whole - 1, num:task.num, den:task.den, shape:task.shape});
+    add({whole:task.whole + 1, num:task.num, den:task.den, shape:task.shape});
+
+    // Uzupełnienie puli: nadal preferujemy tę samą liczbę całości
+    // oraz mianowniki zbliżone do poprawnego.
+    for(let distance = 1; choices.length < 8 && distance <= 6; distance++){
+      const denominators = [task.den - distance, task.den + distance];
+      denominators.forEach(d => {
+        if(d > 1){
+          for(let n = 1; n < d && choices.length < 8; n++){
+            add({whole:task.whole, num:n, den:d, shape:task.shape});
+          }
+        }
+      });
+    }
+
+    return choices;
+  }
+
+  function chooseModeChoices(task){
+    const wrong = harderWrongChoices(task);
+
+    // 6 odpowiedzi: pięć podobnych zmyłek i jedna odpowiedź poprawna.
+    return shuffle([task].concat(wrong.slice(0, 5)));
+  }
+
+  const previousRenderFractionModelsGame = window.renderFractionModelsGame;
+
+  window.renderFractionModelsGame = function(data, container, isFullscreen){
+    // Nadpisujemy tylko tryb wyboru. Tryb budowania zostaje z wersji v56.
+    if(data.mode !== "choose"){
+      return previousRenderFractionModelsGame(data, container, isFullscreen);
+    }
+
+    const wrapper = document.createElement("div");
+    wrapper.className = isFullscreen ? "card" : "";
+
+    let index = 0;
+
+    wrapper.innerHTML = `
+      <div class="game-head">
+        <div><h2>${escapeHtml(data.title)}</h2></div>
+        <div class="score" id="fmScore">1 / ${data.tasks.length}</div>
+      </div>
+      <div class="fm-stage" id="fmStage"></div>
+    `;
+
+    container.innerHTML = "";
+    container.appendChild(wrapper);
+
+    const stage = wrapper.querySelector("#fmStage");
+    const score = wrapper.querySelector("#fmScore");
+
+    function finish(){
+      stage.innerHTML = `
+        <div class="training-card">
+          <h2>Brawo!</h2>
+          <p>Wszystkie modele dopasowane.</p>
+          <button class="btn" type="button" id="fmAgain">Zacznij od nowa</button>
+        </div>
+      `;
+
+      stage.querySelector("#fmAgain").onclick = function(){
+        window.renderFractionModelsGame(data, container, isFullscreen);
+      };
+
+      if(typeof confetti === "function") confetti();
+    }
+
+    function next(){
+      if(index < data.tasks.length - 1){
+        index++;
+        draw();
+      }else{
+        finish();
+      }
+    }
+
+    function draw(){
+      const task = data.tasks[index];
+      score.textContent = (index + 1) + " / " + data.tasks.length;
+
+      const choices = chooseModeChoices(task);
+
+      stage.innerHTML = `
+        <div class="fm-top">
+          <div class="fm-question">Wybierz model dla ${fracLatex(task)}</div>
+        </div>
+        <div class="fm-choice-grid">
+          ${choices.map(c => `
+            <button type="button" class="fm-choice" data-good="${c.whole === task.whole && c.num === task.num && c.den === task.den}">
+              ${modelHtml(c)}
+            </button>
+          `).join("")}
+        </div>
+        <div class="fm-feedback" id="fmFeedback"></div>
+      `;
+
+      stage.querySelectorAll(".fm-choice").forEach(btn => {
+        btn.onclick = function(){
+          const fb = stage.querySelector("#fmFeedback");
+
+          if(btn.dataset.good === "true"){
+            btn.classList.add("good");
+            fb.textContent = "Dobrze!";
+            fb.className = "fm-feedback good";
+            setTimeout(next, 550);
+          }else{
+            btn.classList.add("bad");
+            fb.textContent = "Spróbuj jeszcze raz.";
+            fb.className = "fm-feedback bad";
+            setTimeout(() => btn.classList.remove("bad"), 650);
+          }
+        };
+      });
+
+      if(typeof typeset === "function") typeset(stage);
+    }
+
+    draw();
+  };
+
 })();
 </script>
 
