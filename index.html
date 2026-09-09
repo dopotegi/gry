@@ -2109,7 +2109,7 @@ function parseMemoryInput() {
   function openFullscreen(data) {
     currentFullscreenData = JSON.parse(JSON.stringify(data));
     document.getElementById('fullscreenTitle').textContent = data.title;
-    document.getElementById('fullscreenSubtitle').textContent = data.type === 'match' ? 'łączenie w pary' : (data.type === 'memory' ? 'memory' : 'quiz');
+    document.getElementById('fullscreenSubtitle').textContent = data.type === 'match' ? 'łączenie w pary' : (data.type === 'memory' ? 'memory' : (data.type === 'connect4' ? '4 w linii' : (data.type === 'treasure' ? 'poszukiwanie skarbów' : 'quiz')));
     document.getElementById('fullscreenGame').classList.add('active');
     renderGame(currentFullscreenData, document.getElementById('fullscreenContent'), true);
   }
@@ -6092,6 +6092,7 @@ function ensureSavedFilters(){
       <button class="saved-filter-button" type="button" data-filter="flying">Latające odpowiedzi</button>
       <button class="saved-filter-button" type="button" data-filter="training">Trening</button>
       <button class="saved-filter-button" type="button" data-filter="fraction-models">Modele ułamków</button>
+      <button class="saved-filter-button" type="button" data-filter="connect4">4 w linii</button>
       <div class="saved-tag-filter-row">
         <span class="saved-filter-panel-title">Klasy:</span>
         <span id="savedTagButtonsBox"></span>
@@ -6231,6 +6232,9 @@ function typeInfo(game){
   }else if(game.type === "fraction-models"){
     typeLabel = "Modele ułamków";
     count = (game.questions ? game.questions.length : (game.tasks ? game.tasks.length : 0)) + " zadań";
+  }else if(game.type === "connect4"){
+    typeLabel = "4 w linii";
+    count = (game.tasks ? game.tasks.length : 0) + " przykładów";
   }
 
   return { typeLabel, count };
@@ -8116,6 +8120,968 @@ Wielokrotności 5 ; 10 ; 25 ; 35 ; 40</textarea>
   .fullscreen-game:has(.fm-stage) .fm-layout{grid-template-columns:1fr !important;}
 }
 </style>
+
+
+<style id="fraction-models-larger-pieces-v4">
+/* Większe, czytelniejsze modele przy zachowaniu widoku bez przewijania */
+.fullscreen-game:has(.fm-stage) .fm-stage{
+  padding:9px 16px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-top{
+  margin-bottom:5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-work{
+  gap:5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-target{
+  flex-basis:124px !important;
+  min-height:124px !important;
+  padding:5px 10px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-target .fm-shape svg{
+  width:82px !important;
+  height:82px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-bank-wrap{
+  padding:5px 8px 7px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-bank-wrap .bank-note{
+  margin-bottom:3px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-bank{
+  gap:4px 5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-piece{
+  min-height:66px !important;
+  height:66px !important;
+  padding:2px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-piece .fm-shape svg{
+  width:58px !important;
+  height:58px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-controls .btn{
+  padding-top:5px !important;
+  padding-bottom:5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-feedback{
+  flex-basis:36px !important;
+  min-height:36px !important;
+  max-height:36px !important;
+  font-size:18px !important;
+}
+
+@media (max-height:800px){
+  .fullscreen-game:has(.fm-stage) .fullscreen-top{
+    min-height:46px !important;
+    margin-bottom:5px !important;
+    padding-top:4px !important;
+    padding-bottom:4px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fullscreen-brand img{
+    width:36px !important;
+    height:36px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fullscreen-brand strong{
+    font-size:24px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fullscreen-brand span{
+    font-size:12px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-stage{
+    padding:7px 14px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-question{
+    font-size:30px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-target{
+    flex-basis:108px !important;
+    min-height:108px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-target .fm-shape svg{
+    width:70px !important;
+    height:70px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-piece{
+    min-height:60px !important;
+    height:60px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-piece .fm-shape svg{
+    width:53px !important;
+    height:53px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-feedback{
+    flex-basis:30px !important;
+    min-height:30px !important;
+    max-height:30px !important;
+    font-size:16px !important;
+  }
+}
+</style>
+
+
+<style id="connect-four-style-v2">
+.c4-stage{border:2px solid var(--line);border-radius:26px;background:linear-gradient(135deg,#fff 0%,#f7f4ff 100%);padding:14px;min-height:0}
+.c4-top{display:grid;grid-template-columns:minmax(150px,1fr) minmax(230px,1.5fr) minmax(150px,1fr);gap:12px;align-items:center;margin-bottom:10px}
+.c4-player{border:3px solid var(--line);border-radius:18px;padding:8px 12px;font-weight:800;background:#fff;font-size:20px;text-align:center;opacity:.42;transition:.18s;position:relative}
+.c4-player.active{opacity:1;transform:scale(1.035);box-shadow:0 8px 22px rgba(51,0,204,.16)}
+.c4-player.active::after{content:'TERAZ GRA';display:block;font-size:13px;letter-spacing:.8px;margin-top:2px}
+.c4-player.p1{color:var(--violet)}.c4-player.p2{color:var(--red)}
+.c4-player.p1.active{background:#eee9ff;border-color:var(--violet)}.c4-player.p2.active{background:#fff0f1;border-color:var(--red)}
+.c4-task-wrap{text-align:center}.c4-task-label{font-size:15px;color:var(--muted);font-weight:700}.c4-task{font-size:32px;font-weight:800;color:#111;min-width:180px;line-height:1.05;min-height:48px;display:flex;align-items:center;justify-content:center}
+.c4-board{display:grid;gap:6px;width:min(100%,900px);margin:0 auto}.c4-board.cols-5{grid-template-columns:repeat(5,1fr)}.c4-board.cols-6{grid-template-columns:repeat(6,1fr)}.c4-board.cols-7{grid-template-columns:repeat(7,1fr)}.c4-board.cols-8{grid-template-columns:repeat(8,1fr)}
+.c4-cell{min-width:0;aspect-ratio:1.22/1;border:2px solid #cfc6f8;border-radius:13px;background:#fff;font-size:clamp(17px,2.25vh,23px);font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;text-align:center;padding:3px;transition:.12s;overflow:hidden}
+.c4-cell:hover{border-color:var(--violet);transform:translateY(-1px)}
+.c4-cell.p1{background:#ebe5ff;border-color:var(--violet);color:var(--violet);cursor:default}.c4-cell.p2{background:#fff0f1;border-color:var(--red);color:var(--red);cursor:default}
+.c4-cell.bad{animation:c4bad .38s ease;border-color:var(--red);background:#fff1f1}.c4-cell.win{box-shadow:0 0 0 4px rgba(22,160,93,.24);border-color:var(--green)}
+@keyframes c4bad{0%,100%{transform:translateX(0)}25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+.c4-bottom{display:flex;justify-content:center;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px}.c4-status{font-size:18px;font-weight:700;min-height:24px;text-align:center;color:var(--muted)}
+.c4-dice{display:inline-flex;gap:10px;align-items:center;justify-content:center}.c4-op{font-size:30px;font-weight:800;color:#222}.c4-die{width:54px;height:54px;border:3px solid #222;border-radius:13px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:6px;background:#fff;box-shadow:0 5px 12px rgba(0,0,0,.10)}.c4-die.rolling{animation:c4roll .45s ease}@keyframes c4roll{0%{transform:rotate(0) scale(1)}40%{transform:rotate(14deg) scale(.92)}75%{transform:rotate(-10deg) scale(1.05)}100%{transform:rotate(0) scale(1)}}.c4-pip{width:7px;height:7px;border-radius:50%;background:#222;align-self:center;justify-self:center}
+.c4-roll-btn{background:var(--violet)!important}.c4-settings-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}.c4-settings-grid .full{grid-column:1/-1}.c4-mode-note{font-size:17px;color:var(--muted);line-height:1.25;margin-top:7px}.saved-game[data-game-type="connect4"] .saved-type-badge{background:#eef0ff;color:#3300CC}
+.fullscreen-game .c4-stage{padding:10px 14px}.fullscreen-game .c4-top{margin-bottom:8px}.fullscreen-game .c4-board{width:min(92vw,900px);max-height:calc(100vh - 245px)}.fullscreen-game .c4-cell{font-size:clamp(16px,2.2vh,23px)}.fullscreen-game .game-head{margin-bottom:8px}.fullscreen-game .game-head h2{font-size:30px}.fullscreen-game .c4-bottom{margin-top:6px}
+@media(max-height:820px){.fullscreen-game .fullscreen-top{padding:7px 12px;margin-bottom:8px}.fullscreen-game .fullscreen-brand img{width:48px;height:48px}.fullscreen-game .fullscreen-brand strong{font-size:25px}.fullscreen-game .c4-task{font-size:27px;min-height:40px}.fullscreen-game .c4-player{padding:5px 10px;font-size:17px}.fullscreen-game .c4-player.active::after{font-size:11px}.fullscreen-game .c4-cell{font-size:clamp(14px,2vh,20px);border-radius:10px}.fullscreen-game .c4-board{gap:5px}}
+@media(max-width:900px){.c4-top{grid-template-columns:1fr 1fr}.c4-task-wrap{grid-column:1/-1;grid-row:1}.c4-stage{padding:10px}.c4-board{gap:5px}.c4-cell{border-radius:10px}.c4-settings-grid{grid-template-columns:1fr}}
+</style>
+
+<script id="connect-four-script-v2">
+(function(){
+  function q(id){return document.getElementById(id)}
+  function esc(s){return typeof escapeHtml==='function'?escapeHtml(String(s)):String(s)}
+  function mixed(s){return typeof renderMixed==='function'?renderMixed(String(s)):esc(s)}
+  function rnd(a,b){return Math.floor(Math.random()*(b-a+1))+a}
+  function shuffleLocal(a){return (typeof shuffle==='function'?shuffle(a):a.sort(()=>Math.random()-.5))}
+  function opSymbol(op){return op==='mul'?'\\cdot':op==='div'?':':op==='sub'?'-':'+'}
+  function normalizeAnswer(v){return String(v==null?'':v).replace(/\\\(|\\\)|\$/g,'').replace(/\s+/g,'').trim()}
+  const sizeMap={small:{rows:5,cols:5,label:'5 × 5'},medium:{rows:6,cols:6,label:'6 × 6'},classic:{rows:6,cols:7,label:'7 × 6'},large:{rows:7,cols:8,label:'8 × 7'}};
+  const diffMap={easy:[1,6],medium:[1,10],hard:[2,15]};
+
+  function ensureUi(){
+    const select=q('gameType');
+    if(select && !select.querySelector('option[value="connect4"]')){const opt=document.createElement('option');opt.value='connect4';opt.textContent='4 w linii';select.appendChild(opt)}
+    const grid=document.querySelector('#start .game-type-grid');
+    if(grid && !q('startConnect4')){const tile=document.createElement('div');tile.className='game-type';tile.id='startConnect4';tile.innerHTML='<div class="icon">4</div><h2>4 w linii</h2><p>Rozwiązuj przykłady, wybieraj wyniki i ułóż cztery pola w jednej linii przed przeciwnikiem.</p>';grid.appendChild(tile);tile.onclick=function(){if(typeof selectGameType==='function')selectGameType('connect4')}}
+    const creatorLeft=document.querySelector('#creator .creator > .card')||document.querySelector('.creator > .card');
+    if(creatorLeft && !q('connect4Fields')){
+      const box=document.createElement('div');box.id='connect4Fields';box.style.display='none';box.innerHTML=`
+        <label>Wariant gry</label><select id="connect4Mode"><option value="generator">Generator działań</option><option value="custom">Własne przykłady</option></select>
+        <div id="connect4GeneratorFields">
+          <div class="c4-settings-grid">
+            <div><label>Działanie</label><select id="connect4Operation"><option value="mul">Mnożenie</option><option value="add">Dodawanie</option><option value="sub">Odejmowanie</option><option value="div">Dzielenie</option></select></div>
+            <div><label>Poziom trudności</label><select id="connect4Difficulty"><option value="easy">Łatwy</option><option value="medium" selected>Średni</option><option value="hard">Trudny</option></select></div>
+            <div><label>Najmniejsza liczba w działaniu</label><input id="connect4Min" type="number" value="1"></div>
+            <div><label>Największa liczba w działaniu</label><input id="connect4Max" type="number" value="10"></div>
+          </div>
+          <div class="c4-mode-note">Poziom ustawia proponowany zakres liczb. Możesz go potem ręcznie zmienić.</div>
+        </div>
+        <div id="connect4CustomFields" style="display:none"><label>Przykłady i odpowiedzi</label><textarea id="connect4Input" placeholder="7 \\cdot 6 ; 42\n18 + 7 ; 25\n\\frac{1}{2}+\\frac{1}{4} ; \\frac{3}{4}"></textarea><div class="hint">Każdy wiersz: przykład ; wynik. Jeśli przykładów jest mniej niż pól, wyniki zostaną wykorzystane ponownie na planszy.</div></div>
+        
+        <label>Wielkość planszy</label><select id="connect4BoardSize"><option value="small">5 × 5</option><option value="medium">6 × 6</option><option value="classic" selected>7 × 6 (klasyczna)</option><option value="large">8 × 7</option></select>
+        <div class="c4-settings-grid"><div><label>Gracz 1</label><input id="connect4Player1" value="Gracz 1"></div><div><label>Gracz 2</label><input id="connect4Player2" value="Gracz 2"></div></div>`;
+      const actions=creatorLeft.querySelector('.creator-actions');if(actions)creatorLeft.insertBefore(box,actions);else creatorLeft.appendChild(box);
+      q('connect4Mode').addEventListener('change',toggleModeFields);q('connect4Difficulty').addEventListener('change',applyDifficulty);
+    }
+    const filterPanel=q('savedFilterPanel');if(filterPanel&&!filterPanel.querySelector('[data-filter="connect4"]')){const b=document.createElement('button');b.className='saved-filter-button';b.type='button';b.dataset.filter='connect4';b.textContent='4 w linii';filterPanel.appendChild(b)}
+  }
+  function toggleModeFields(){const m=q('connect4Mode')?q('connect4Mode').value:'generator';if(q('connect4GeneratorFields'))q('connect4GeneratorFields').style.display=m==='generator'?'block':'none';if(q('connect4CustomFields'))q('connect4CustomFields').style.display=m==='custom'?'block':'none';if(q('connect4DiceFields'))q('connect4DiceFields').style.display=m==='dice'?'block':'none'}
+  function applyDifficulty(){const d=q('connect4Difficulty')?q('connect4Difficulty').value:'medium',r=diffMap[d]||diffMap.medium;if(q('connect4Min'))q('connect4Min').value=r[0];if(q('connect4Max'))q('connect4Max').value=r[1]}
+  function taskFromPair(op,a,b){let ans;if(op==='mul')ans=a*b;else if(op==='add')ans=a+b;else if(op==='sub'){if(b>a){const t=a;a=b;b=t}ans=a-b}else{if(b===0)return null;ans=a/b;if(!Number.isInteger(ans))return null}return{question:`\\(${a} ${opSymbol(op)} ${b}\\)`,answer:String(ans),dice:null}}
+  function generatedPool(op,min,max){const out=[],seen=new Set();if(op==='div'){for(let divisor=Math.max(1,min);divisor<=max;divisor++){for(let quotient=Math.max(1,min);quotient<=max;quotient++){const t=taskFromPair('div',divisor*quotient,divisor),k=t.question;if(!seen.has(k)){seen.add(k);out.push(t)}}}}else{for(let a=min;a<=max;a++){for(let b=min;b<=max;b++){const t=taskFromPair(op,a,b);if(!t)continue;const k=t.question;if(!seen.has(k)){seen.add(k);out.push(t)}}}}return shuffleLocal(out)}
+  function makeGeneratedTasks(op,min,max,count){let pool=generatedPool(op,min,max),result=[];if(!pool.length)throw new Error('Nie udało się utworzyć przykładów dla tego zakresu.');while(result.length<count){const batch=shuffleLocal(pool.slice());for(const t of batch){result.push({...t});if(result.length>=count)break}}return result}
+  function makeDiceTask(op,sides){let a=rnd(1,sides),b=rnd(1,sides),ans;if(op==='mul')ans=a*b;else if(op==='add')ans=a+b;else{if(b>a){const t=a;a=b;b=t}ans=a-b}return{question:`\\(${a} ${opSymbol(op)} ${b}\\)`,answer:String(ans),dice:[a,b]}}
+  function parseCustom(){const raw=(q('connect4Input')?q('connect4Input').value:'').trim();const tasks=raw.split('\n').map(x=>x.trim()).filter(Boolean).map(function(line,i){const p=line.split(';').map(x=>x.trim());if(p.length<2)throw new Error('W linijce '+(i+1)+' wpisz: przykład ; wynik.');return{question:p[0],answer:p[1],dice:null}});if(tasks.length<4)throw new Error('Dodaj przynajmniej 4 przykłady.');return tasks}
+  function buildBoard(tasks,count){const answers=tasks.map(t=>String(t.answer)),cells=[];shuffleLocal(answers.slice()).slice(0,Math.min(answers.length,count)).forEach(a=>cells.push(a));while(cells.length<count)cells.push(answers[rnd(0,answers.length-1)]);return shuffleLocal(cells).slice(0,count)}
+  function getData(){const mode=q('connect4Mode').value,sizeKey=q('connect4BoardSize').value||'classic',size=sizeMap[sizeKey]||sizeMap.classic,count=size.rows*size.cols;let tasks=[];if(mode==='custom')tasks=parseCustom();else if(mode==='dice'){const sides=Number(q('connect4DiceSides').value||10),op=q('connect4DiceOperation').value;for(let i=0;i<Math.max(count,70);i++)tasks.push(makeDiceTask(op,sides))}else{const op=q('connect4Operation').value,min=Number(q('connect4Min').value),max=Number(q('connect4Max').value);if(!Number.isFinite(min)||!Number.isFinite(max)||min>max)throw new Error('Sprawdź zakres liczb w działaniach.');tasks=makeGeneratedTasks(op,min,max,count)}return{type:'connect4',title:q('gameTitle').value.trim()||'4 w linii',mode,tasks,board:buildBoard(tasks,count),rows:size.rows,cols:size.cols,boardSize:sizeKey,player1:q('connect4Player1').value.trim()||'Gracz 1',player2:q('connect4Player2').value.trim()||'Gracz 2',settings:{operation:q('connect4Operation')?q('connect4Operation').value:'mul',difficulty:q('connect4Difficulty')?q('connect4Difficulty').value:'medium',min:q('connect4Min')?Number(q('connect4Min').value):1,max:q('connect4Max')?Number(q('connect4Max').value):10,diceSides:q('connect4DiceSides')?Number(q('connect4DiceSides').value):10,diceOperation:q('connect4DiceOperation')?q('connect4DiceOperation').value:'mul',customInput:q('connect4Input')?q('connect4Input').value:''}}}
+  const pipPos={1:[5],2:[1,9],3:[1,5,9],4:[1,3,7,9],5:[1,3,5,7,9],6:[1,3,4,6,7,9],7:[1,3,4,5,6,7,9],8:[1,2,3,4,6,7,8,9],9:[1,2,3,4,5,6,7,8,9],10:[1,2,3,4,6,7,8,9],11:[1,2,3,4,5,6,7,8,9],12:[1,2,3,4,5,6,7,8,9]};
+  function dieHtml(v,sides){if(sides<=6){const ps=pipPos[v]||[];let h='<span class="c4-die rolling">';for(let i=1;i<=9;i++)h+=ps.includes(i)?'<i class="c4-pip" style="grid-area:'+Math.ceil(i/3)+' / '+(((i-1)%3)+1)+'"></i>':'';return h+'</span>'}return '<span class="c4-die rolling" style="display:flex;align-items:center;justify-content:center;font-size:25px;font-weight:900">'+v+'</span>'}
+  function renderGameC4(data,container,isFullscreen){container.innerHTML='';const rows=data.rows||6,cols=data.cols||7,total=rows*cols;const wrap=document.createElement('div');if(isFullscreen)wrap.className='card';wrap.innerHTML=`<div class="game-head"><div><h2>${esc(data.title||'4 w linii')}</h2></div><div class="score">Plansza ${cols} × ${rows}</div></div><div class="c4-stage"><div class="c4-top"><div class="c4-player p1 active" id="c4p1">${esc(data.player1||'Gracz 1')}</div><div class="c4-task-wrap"><div class="c4-task-label">${data.mode==='dice'?'Rzuć kostkami':'Oblicz i wybierz wynik'}</div><div class="c4-task" id="c4task"></div></div><div class="c4-player p2" id="c4p2">${esc(data.player2||'Gracz 2')}</div></div><div class="c4-board cols-${cols}" id="c4board"></div><div class="c4-bottom"><div class="c4-status" id="c4status"></div>${data.mode==='dice'?'<button class="btn small c4-roll-btn" type="button" id="c4roll">🎲 Rzuć kostkami</button>':'<button class="btn secondary small" type="button" id="c4skip">Losuj inne zadanie</button>'}</div></div>`;container.appendChild(wrap);
+    const boardBox=wrap.querySelector('#c4board'),taskBox=wrap.querySelector('#c4task'),status=wrap.querySelector('#c4status'),p1=wrap.querySelector('#c4p1'),p2=wrap.querySelector('#c4p2');const board=(data.board&&data.board.length===total?data.board.slice():buildBoard(data.tasks||[],total));const owners=new Array(total).fill(0);let player=1,finished=false,current=null,deck=shuffleLocal((data.tasks||[]).slice());
+    function who(){return player===1?(data.player1||'Gracz 1'):(data.player2||'Gracz 2')}
+    function updatePlayers(){p1.classList.toggle('active',player===1);p2.classList.toggle('active',player===2)}
+    function availableFor(ans){const n=normalizeAnswer(ans);return board.some((v,i)=>owners[i]===0&&normalizeAnswer(v)===n)}
+    function showTask(t){current=t;if(data.mode==='dice'&&t.dice){const sides=(data.settings&&data.settings.diceSides)||10;taskBox.innerHTML='<span class="c4-dice">'+dieHtml(t.dice[0],sides)+'<span class="c4-op">'+mixed(opSymbol((data.settings&&data.settings.diceOperation)||'mul'))+'</span>'+dieHtml(t.dice[1],sides)+'</span>';setTimeout(()=>taskBox.querySelectorAll('.c4-die').forEach(d=>d.classList.remove('rolling')),500)}else taskBox.innerHTML=mixed(t.question);status.textContent='Ruch: '+who();if(typeof typeset==='function')typeset(taskBox)}
+    function nextTask(){if(finished)return;if(data.mode==='dice'){current=null;taskBox.innerHTML='<span style="color:#777;font-size:20px">Kliknij „Rzuć kostkami”</span>';status.textContent='Ruch: '+who();return}if(!deck.length)deck=shuffleLocal((data.tasks||[]).slice());let tries=0,t;do{t=deck.shift();if(!deck.length)deck=shuffleLocal((data.tasks||[]).slice());tries++}while(t&&!availableFor(t.answer)&&tries<200);if(!t||!availableFor(t.answer)){status.textContent='Nie ma już wolnego pola dla kolejnych wyników.';return}showTask(t)}
+    function rollDice(){if(finished)return;const op=(data.settings&&data.settings.diceOperation)||'mul',sides=(data.settings&&data.settings.diceSides)||10;let t,tries=0;do{t=makeDiceTask(op,sides);tries++}while(!availableFor(t.answer)&&tries<250);if(!availableFor(t.answer)){status.textContent='Nie ma już wolnego pola dla możliwego wyniku rzutu.';return}showTask(t)}
+    function winLine(idx,pl){const r=Math.floor(idx/cols),c=idx%cols,dirs=[[0,1],[1,0],[1,1],[1,-1]];for(const[dr,dc]of dirs){let line=[idx];for(const sign of[-1,1]){let rr=r+dr*sign,cc=c+dc*sign;while(rr>=0&&rr<rows&&cc>=0&&cc<cols&&owners[rr*cols+cc]===pl){line.push(rr*cols+cc);rr+=dr*sign;cc+=dc*sign}}if(line.length>=4)return line}return null}
+    board.forEach(function(val,i){const b=document.createElement('button');b.className='c4-cell';b.type='button';b.innerHTML=mixed(val);b.onclick=function(){if(finished||owners[i])return;if(!current){status.textContent=data.mode==='dice'?'Najpierw rzuć kostkami.':'Najpierw wylosuj zadanie.';return}if(normalizeAnswer(val)!==normalizeAnswer(current.answer)){b.classList.add('bad');status.textContent='To nie jest wynik tego przykładu. Spróbuj jeszcze raz.';setTimeout(()=>b.classList.remove('bad'),400);return}owners[i]=player;b.classList.add(player===1?'p1':'p2');const line=winLine(i,player);if(line){finished=true;line.forEach(j=>boardBox.children[j].classList.add('win'));status.textContent='Wygrywa '+who()+'! Cztery w linii!';if(typeof confetti==='function')confetti();return}if(owners.every(Boolean)){finished=true;status.textContent='Remis — plansza jest pełna.';return}player=player===1?2:1;updatePlayers();nextTask()};boardBox.appendChild(b)});if(wrap.querySelector('#c4skip'))wrap.querySelector('#c4skip').onclick=nextTask;if(wrap.querySelector('#c4roll'))wrap.querySelector('#c4roll').onclick=rollDice;nextTask();if(typeof typeset==='function')typeset(wrap)}
+  function hook(){ensureUi();toggleModeFields();if(window.__c4HookedV2)return;window.__c4HookedV2=true;const oldGet=window.getCurrentGameData;window.getCurrentGameData=function(){if(q('gameType')&&q('gameType').value==='connect4')return getData();return oldGet.apply(this,arguments)};const oldType=window.onGameTypeChange;window.onGameTypeChange=function(){if(oldType)oldType.apply(this,arguments);ensureUi();const f=q('connect4Fields');if(f)f.style.display=q('gameType').value==='connect4'?'block':'none';toggleModeFields()};const oldRender=window.renderGame;window.renderGame=function(data,container,isFullscreen){if(data&&data.type==='connect4'){renderGameC4(data,container,isFullscreen);return}return oldRender.apply(this,arguments)};const oldLoad=window.loadSavedGame;window.loadSavedGame=function(index){const list=(typeof currentSavedGames==='function'?currentSavedGames():[]),g=list[index];if(!g||g.type!=='connect4')return oldLoad.apply(this,arguments);if(typeof markGameAsEdited==='function')markGameAsEdited(g,index);q('gameTitle').value=g.title||'4 w linii';q('gameType').value='connect4';if(typeof setSelectedClassTags==='function')setSelectedClassTags(g.classTags||g.tags||[]);window.onGameTypeChange();q('connect4Mode').value=(g.mode==='dice'?'generator':(g.mode||'generator'));q('connect4BoardSize').value=g.boardSize||'classic';q('connect4Player1').value=g.player1||'Gracz 1';q('connect4Player2').value=g.player2||'Gracz 2';const s=g.settings||{};if(q('connect4Operation'))q('connect4Operation').value=s.operation||'mul';if(q('connect4Difficulty'))q('connect4Difficulty').value=s.difficulty||'medium';if(q('connect4Min'))q('connect4Min').value=s.min??1;if(q('connect4Max'))q('connect4Max').value=s.max??10;if(q('connect4DiceSides'))q('connect4DiceSides').value=s.diceSides||10;if(q('connect4DiceOperation'))q('connect4DiceOperation').value=s.diceOperation||'mul';if(q('connect4Input'))q('connect4Input').value=s.customInput||((g.tasks||[]).map(t=>t.question+' ; '+t.answer).join('\n'));toggleModeFields();if(typeof showScreen==='function')showScreen('creator');if(typeof buildGame==='function')buildGame(false)};if(typeof window.typeInfo==='function'){const oldInfo=window.typeInfo;window.typeInfo=function(game){if(game&&game.type==='connect4')return{typeLabel:'4 w linii',count:(game.cols||7)+' × '+(game.rows||6)};return oldInfo(game)}}const oldSaved=window.renderSavedGames;window.renderSavedGames=function(){const r=oldSaved.apply(this,arguments);ensureUi();document.querySelectorAll('.saved-game[data-game-type="connect4"] .saved-type-badge').forEach(b=>b.textContent='4 w linii');return r}}
+  document.addEventListener('DOMContentLoaded',function(){setTimeout(hook,0)});setTimeout(hook,500);
+})();
+</script>
+
+
+<style id="connect-four-compact-v3">
+/* 4 w linii v3: cały ekran bez przewijania + czytelniejsze liczby */
+.fullscreen-game:has(.c4-stage){overflow:hidden !important;}
+.fullscreen-game:has(.c4-stage) .game-head{display:none !important;}
+.fullscreen-game:has(.c4-stage) .card{padding:8px 12px 10px !important; margin:0 auto !important;}
+.fullscreen-game .c4-stage{
+  padding:8px 12px 9px !important;
+  border-radius:20px !important;
+  height:calc(100vh - 112px) !important;
+  max-height:calc(100vh - 112px) !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+.fullscreen-game .c4-top{
+  flex:0 0 auto !important;
+  grid-template-columns:minmax(170px,1fr) minmax(220px,1.2fr) minmax(170px,1fr) !important;
+  gap:10px !important;
+  margin-bottom:7px !important;
+}
+.fullscreen-game .c4-player{
+  padding:5px 10px !important;
+  min-height:46px !important;
+  font-size:20px !important;
+  line-height:1.05 !important;
+  border-radius:14px !important;
+}
+.fullscreen-game .c4-player.active{box-shadow:0 5px 16px rgba(51,0,204,.20) !important;}
+.fullscreen-game .c4-player.active::after{font-size:12px !important;margin-top:3px !important;}
+.fullscreen-game .c4-task-label{font-size:17px !important;line-height:1 !important;}
+.fullscreen-game .c4-task{font-size:31px !important;min-height:39px !important;line-height:1 !important;}
+.fullscreen-game .c4-board{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  width:min(96vw,980px) !important;
+  max-height:none !important;
+  margin:0 auto !important;
+  gap:5px !important;
+  align-content:stretch !important;
+  grid-auto-rows:minmax(0,1fr) !important;
+}
+.fullscreen-game .c4-cell{
+  aspect-ratio:auto !important;
+  min-height:0 !important;
+  height:auto !important;
+  border-radius:10px !important;
+  font-family:'Khand',sans-serif !important;
+  font-size:clamp(19px,2.35vh,25px) !important;
+  line-height:1 !important;
+  font-weight:700 !important;
+  padding:2px !important;
+}
+.fullscreen-game .c4-bottom{
+  flex:0 0 auto !important;
+  min-height:34px !important;
+  margin-top:6px !important;
+  gap:10px !important;
+}
+.fullscreen-game .c4-status{
+  min-height:22px !important;
+  font-family:'Khand',sans-serif !important;
+  font-size:18px !important;
+  line-height:1.05 !important;
+}
+.fullscreen-game .c4-bottom .btn{padding:7px 15px !important;font-size:17px !important;}
+
+@media (max-height:760px){
+  .fullscreen-game .c4-stage{height:calc(100vh - 96px) !important;max-height:calc(100vh - 96px) !important;padding:6px 10px 7px !important;}
+  .fullscreen-game .c4-top{margin-bottom:5px !important;}
+  .fullscreen-game .c4-player{min-height:40px !important;font-size:18px !important;padding:4px 8px !important;}
+  .fullscreen-game .c4-player.active::after{font-size:10px !important;}
+  .fullscreen-game .c4-task-label{font-size:15px !important;}
+  .fullscreen-game .c4-task{font-size:27px !important;min-height:34px !important;}
+  .fullscreen-game .c4-board{gap:4px !important;width:min(94vw,930px) !important;}
+  .fullscreen-game .c4-cell{font-size:clamp(18px,2.25vh,22px) !important;border-radius:8px !important;}
+  .fullscreen-game .c4-bottom{margin-top:4px !important;min-height:30px !important;}
+  .fullscreen-game .c4-status{font-size:16px !important;}
+  .fullscreen-game .c4-bottom .btn{padding:5px 12px !important;font-size:15px !important;}
+}
+
+/* Podgląd poza pełnym ekranem też nie może rozjeżdżać kontenera. */
+.c4-stage{overflow:hidden;}
+.c4-board{grid-auto-rows:minmax(58px,1fr);}
+.c4-cell{font-family:'Khand',sans-serif;font-weight:700;font-size:clamp(19px,2.2vh,24px);}
+</style>
+
+
+<style id="treasure-hunt-mode-v1-style">
+/* ===== POSZUKIWANIE SKARBÓW ===== */
+.th-fields-grid{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:10px 12px;
+}
+.th-fields-grid label{margin-top:8px}
+.th-inline-check{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:18px;
+  font-weight:600;
+  margin-top:10px;
+}
+.th-inline-check input{width:auto;accent-color:var(--violet)}
+.th-capacity{
+  margin-top:8px;
+  padding:8px 10px;
+  border-radius:14px;
+  background:var(--soft);
+  color:var(--violet);
+  font-size:17px;
+  font-weight:700;
+}
+.th-stage{
+  border:2px solid var(--line);
+  border-radius:26px;
+  background:linear-gradient(135deg,#fff 0%,#f8f6ff 100%);
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:9px;
+  min-height:520px;
+  overflow:hidden;
+}
+.th-toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  flex-wrap:wrap;
+}
+.th-progress{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:var(--violet);
+  font-weight:800;
+  font-size:22px;
+}
+.th-board-wrap{
+  flex:1 1 auto;
+  min-height:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.th-board{
+  --th-n:5;
+  display:grid;
+  grid-template-columns:repeat(var(--th-n),minmax(0,1fr));
+  grid-template-rows:repeat(var(--th-n),minmax(0,1fr));
+  gap:7px;
+  width:min(94vw,760px);
+  aspect-ratio:1/1;
+  max-width:100%;
+  max-height:100%;
+}
+.th-tile{
+  position:relative;
+  border:2px solid #cabfff;
+  border-radius:16px;
+  background:#fff;
+  min-width:0;
+  min-height:0;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:6px;
+  font-size:clamp(15px,2.05vh,24px);
+  font-weight:700;
+  line-height:1.06;
+  transition:.16s;
+}
+.th-tile:not(.revealed){cursor:pointer}
+.th-tile:not(.revealed):hover{
+  transform:translateY(-2px);
+  border-color:var(--violet);
+  box-shadow:0 8px 18px rgba(51,0,204,.12);
+}
+.th-cover{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(145deg,#fff,#f4f0ff);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  z-index:2;
+}
+.th-cover img{
+  width:54%;
+  height:54%;
+  object-fit:contain;
+  opacity:.92;
+}
+.th-cover-number{
+  position:absolute;
+  left:7px;
+  top:5px;
+  color:var(--violet);
+  font-size:clamp(12px,1.5vh,17px);
+  font-weight:800;
+}
+.th-tile.revealed .th-cover{
+  opacity:0;
+  pointer-events:none;
+}
+.th-tile.treasure{
+  border-color:#e1b600;
+  background:#fffbed;
+  color:#7b5a00;
+}
+.th-treasure-mark{
+  font-size:clamp(23px,4.2vh,48px);
+  line-height:1;
+}
+.th-treasure-text{
+  display:block;
+  margin-top:4px;
+  font-size:clamp(13px,1.8vh,20px);
+  color:#7b5a00;
+}
+.th-tile.crossed::after{
+  content:"";
+  position:absolute;
+  inset:7%;
+  background:
+    linear-gradient(45deg,transparent 47%,var(--red) 48%,var(--red) 52%,transparent 53%),
+    linear-gradient(-45deg,transparent 47%,var(--red) 48%,var(--red) 52%,transparent 53%);
+  pointer-events:none;
+  z-index:3;
+}
+.th-hint{
+  position:absolute;
+  right:5px;
+  bottom:5px;
+  z-index:4;
+  border-radius:999px;
+  padding:2px 7px;
+  background:#fff;
+  border:1px solid var(--line);
+  color:var(--violet);
+  font-size:clamp(10px,1.3vh,14px);
+  font-weight:800;
+  box-shadow:0 4px 10px rgba(0,0,0,.07);
+}
+.th-message{
+  min-height:28px;
+  text-align:center;
+  color:var(--violet);
+  font-size:20px;
+  font-weight:800;
+}
+.th-message.win{color:var(--green)}
+.th-stage .mjx-container{margin:0 !important}
+
+/* pełny ekran: plansza zawsze mieści się bez przewijania */
+.fullscreen-game:has(.th-stage){overflow:hidden !important}
+.fullscreen-game:has(.th-stage) .game-head{display:none !important}
+.fullscreen-game:has(.th-stage) .card{
+  padding:7px 10px 9px !important;
+  margin:0 auto !important;
+}
+.fullscreen-game .th-stage{
+  height:calc(100vh - 205px);
+  max-height:calc(100vh - 205px);
+  min-height:0;
+  box-sizing:border-box;
+}
+.fullscreen-game .th-board-wrap{
+  flex:1 1 0;
+  min-height:0;
+  overflow:hidden;
+}
+.fullscreen-game .th-board{
+  width:min(92vw,100%);
+  height:100%;
+  max-width:100%;
+  max-height:100%;
+  aspect-ratio:1/1;
+}
+@media(max-height:780px){
+  .fullscreen-game .th-stage{
+    height:calc(100vh - 185px);
+    max-height:calc(100vh - 185px);
+    padding:7px;
+    gap:5px;
+  }
+  .fullscreen-game .th-toolbar{gap:6px}
+  .fullscreen-game .th-progress{font-size:18px}
+  .fullscreen-game .th-board{
+    width:min(91vw,100%);
+    height:100%;
+    max-width:100%;
+    max-height:100%;
+    gap:5px;
+  }
+  .fullscreen-game .th-tile{border-radius:11px;padding:4px}
+  .fullscreen-game .th-message{font-size:16px;min-height:20px}
+  .fullscreen-game .th-toolbar .btn{padding:5px 10px;font-size:15px}
+}
+@media(max-width:720px){
+  .th-fields-grid{grid-template-columns:1fr}
+  .th-board{gap:4px}
+  .th-tile{border-radius:10px}
+}
+</style>
+
+<script id="treasure-hunt-mode-v1-script">
+(function(){
+  function q(id){ return document.getElementById(id); }
+  function esc(s){
+    return String(s == null ? '' : s)
+      .replaceAll('&','&amp;').replaceAll('<','&lt;')
+      .replaceAll('>','&gt;').replaceAll('"','&quot;');
+  }
+  function shuffle(arr){
+    const a=(arr||[]).slice();
+    for(let i=a.length-1;i>0;i--){
+      const j=Math.floor(Math.random()*(i+1));
+      [a[i],a[j]]=[a[j],a[i]];
+    }
+    return a;
+  }
+  function logoSrc(){
+    const img=document.querySelector('.brand img, .fullscreen-brand img');
+    return img ? img.src : '';
+  }
+  function selectedTagsNow(){
+    return Array.from(document.querySelectorAll('#classTagsBox input[type="checkbox"]:checked'))
+      .map(function(input){return input.value;});
+  }
+  function setTagsNow(tags){
+    const set=new Set(Array.isArray(tags)?tags:[]);
+    document.querySelectorAll('#classTagsBox input[type="checkbox"]').forEach(function(input){
+      input.checked=set.has(input.value);
+    });
+  }
+
+  function ensureUi(){
+    const select=q('gameType');
+    if(!select) return;
+
+    if(!select.querySelector('option[value="treasure"]')){
+      const opt=document.createElement('option');
+      opt.value='treasure';
+      opt.textContent='Poszukiwanie skarbów';
+      select.appendChild(opt);
+    }
+
+    const grid=document.querySelector('#start .game-type-grid');
+    if(grid && !q('startTreasure')){
+      const tile=document.createElement('div');
+      tile.className='game-type';
+      tile.id='startTreasure';
+      tile.innerHTML='<div class="icon">◆</div><h2>Poszukiwanie skarbów</h2><p>Odkrywaj pola, rozwiązuj zadania i znajdź ukryte skarby.</p>';
+      grid.appendChild(tile);
+      tile.addEventListener('click',function(){
+        select.value='treasure';
+        if(typeof window.onGameTypeChange==='function') window.onGameTypeChange();
+        if(typeof showScreen==='function') showScreen('creator');
+        if(typeof buildGame==='function') buildGame(false);
+      });
+    }
+
+    if(!q('treasureFields')){
+      const actions=document.querySelector('#creator .creator-actions');
+      if(actions){
+        const fields=document.createElement('div');
+        fields.id='treasureFields';
+        fields.style.display='none';
+        fields.innerHTML=`
+          <label for="treasureInput">Zadania / przykłady</label>
+          <textarea id="treasureInput">7 \\cdot 8
+9^2
+\\sqrt{64}
+\\frac{3}{4}+\\frac{1}{4}
+15\\% \\text{ z } 200
+2^5
+144:12
+3x+5=20
+\\sqrt[3]{27}
+\\frac{5}{6}-\\frac{1}{3}
+12^2
+7\\cdot 9
+25\\% \\text{ z } 80
+\\sqrt{121}
+4^3
+180:15
+2x-7=9
+\\frac{2}{5}+\\frac{1}{10}
+11^2
+6\\cdot 12
+\\sqrt{169}
+3^4
+240:20
+5x+3=28</textarea>
+          <div class="hint">Jedno zadanie w jednej linijce. Możesz używać zapisu MathJax.</div>
+          <div class="th-fields-grid">
+            <div>
+              <label for="treasureGridSize">Wielkość planszy</label>
+              <select id="treasureGridSize">
+                <option value="3">3 × 3</option>
+                <option value="4">4 × 4</option>
+                <option value="5" selected>5 × 5</option>
+                <option value="6">6 × 6</option>
+                <option value="7">7 × 7</option>
+              </select>
+            </div>
+            <div>
+              <label for="treasureCount">Liczba skarbów</label>
+              <input id="treasureCount" type="number" min="1" max="10" value="1">
+            </div>
+          </div>
+          <label class="th-inline-check"><input id="treasureHints" type="checkbox" checked> Podpowiedzi „gorąco / ciepło / zimno”</label>
+          <label class="th-inline-check"><input id="treasureCross" type="checkbox" checked> Pozwól przekreślać odkryte pola</label>
+          <label class="th-inline-check"><input id="treasureNumbers" type="checkbox" checked> Numery na zakrytych polach</label>
+          <div class="th-capacity" id="treasureCapacity"></div>
+        `;
+        actions.parentNode.insertBefore(fields,actions);
+      }
+    }
+
+    updateCapacity();
+    ['treasureGridSize','treasureCount'].forEach(function(id){
+      const el=q(id);
+      if(el && !el.dataset.thBound){
+        el.dataset.thBound='1';
+        el.addEventListener('input',updateCapacity);
+        el.addEventListener('change',updateCapacity);
+      }
+    });
+  }
+
+  function updateCapacity(){
+    const size=parseInt(q('treasureGridSize')?.value||5,10);
+    const max=Math.max(1,size*size-1);
+    const countEl=q('treasureCount');
+    if(countEl){
+      countEl.max=String(Math.min(10,size*size-1));
+      let c=parseInt(countEl.value||1,10);
+      c=Math.max(1,Math.min(c,size*size-1,10));
+      countEl.value=String(c);
+      const cap=size*size-c;
+      const el=q('treasureCapacity');
+      if(el) el.textContent='Na tej planszy jest '+cap+' pól z zadaniami i '+c+(c===1?' skarb.':' skarby/skarbów.')+' Jeśli podasz mniej zadań, gra wykorzysta je ponownie.';
+    }
+  }
+
+  function parseTasks(){
+    const raw=(q('treasureInput')?.value||'').split(/\r?\n/)
+      .map(function(x){return x.trim();}).filter(Boolean);
+    if(!raw.length) throw new Error('Dodaj przynajmniej jedno zadanie do Poszukiwania skarbów.');
+    return raw;
+  }
+
+  function treasureData(){
+    const n=Math.max(3,Math.min(7,parseInt(q('treasureGridSize')?.value||5,10)));
+    const tc=Math.max(1,Math.min(10,n*n-1,parseInt(q('treasureCount')?.value||1,10)));
+    return {
+      type:'treasure',
+      title:q('gameTitle')?.value||'Poszukiwanie skarbów',
+      classTags:selectedTagsNow(),
+      tags:selectedTagsNow(),
+      gridSize:n,
+      treasureCount:tc,
+      hints:!!q('treasureHints')?.checked,
+      allowCross:!!q('treasureCross')?.checked,
+      showNumbers:!!q('treasureNumbers')?.checked,
+      tasks:parseTasks()
+    };
+  }
+
+  function distance(a,b,n){
+    const ax=a%n, ay=Math.floor(a/n), bx=b%n, by=Math.floor(b/n);
+    return Math.abs(ax-bx)+Math.abs(ay-by);
+  }
+  function hintLabel(d){
+    if(d===1) return 'GORĄCO';
+    if(d===2) return 'CIEPŁO';
+    if(d<=4) return 'CHŁODNO';
+    return 'ZIMNO';
+  }
+
+  function buildRound(data){
+    const n=data.gridSize||5;
+    const total=n*n;
+    const treasures=new Set();
+    while(treasures.size<(data.treasureCount||1)){
+      treasures.add(Math.floor(Math.random()*total));
+    }
+
+    const source=(data.tasks||[]).slice();
+    const needed=total-treasures.size;
+    let tasks=[];
+    while(tasks.length<needed){
+      tasks=tasks.concat(shuffle(source));
+      if(!source.length) break;
+    }
+    tasks=tasks.slice(0,needed);
+
+    const cells=[];
+    let p=0;
+    for(let i=0;i<total;i++){
+      cells.push(treasures.has(i)
+        ? {treasure:true,text:''}
+        : {treasure:false,text:tasks[p++]||''});
+    }
+    return {cells:cells,treasures:treasures};
+  }
+
+  function renderTreasure(data,container,isFullscreen){
+    const n=data.gridSize||5;
+    let round=buildRound(data);
+    let found=0;
+    let hintsOn=data.hints!==false;
+
+    container.innerHTML=`
+      <div class="th-stage">
+        <div class="th-toolbar">
+          <div class="th-progress">Skarby: <span class="th-found">0</span> / <span>${data.treasureCount||1}</span></div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <button class="btn secondary small th-hints-toggle" type="button"></button>
+            <button class="btn secondary small th-reset" type="button">Zasłoń pola</button>
+            <button class="btn small th-new" type="button">Nowe rozmieszczenie</button>
+          </div>
+        </div>
+        <div class="th-board-wrap"><div class="th-board" style="--th-n:${n}"></div></div>
+        <div class="th-message">Wybierz pole i szukaj skarbów.</div>
+      </div>
+    `;
+    const board=container.querySelector('.th-board');
+    const foundEl=container.querySelector('.th-found');
+    const msg=container.querySelector('.th-message');
+    const hintsBtn=container.querySelector('.th-hints-toggle');
+
+    function refreshHintsButton(){
+      if(!hintsBtn) return;
+      hintsBtn.textContent=hintsOn ? 'Podpowiedzi: WŁ.' : 'Podpowiedzi: WYŁ.';
+      hintsBtn.setAttribute('aria-pressed', hintsOn ? 'true' : 'false');
+    }
+    refreshHintsButton();
+
+    function nearest(idx){
+      let best=999;
+      round.treasures.forEach(function(t){best=Math.min(best,distance(idx,t,n));});
+      return best;
+    }
+
+    function draw(){
+      board.innerHTML='';
+      found=0;
+      foundEl.textContent='0';
+      msg.className='th-message';
+      msg.textContent='Wybierz pole i szukaj skarbów.';
+      const logo=logoSrc();
+
+      round.cells.forEach(function(cell,i){
+        const tile=document.createElement('button');
+        tile.type='button';
+        tile.className='th-tile';
+        tile.dataset.idx=String(i);
+
+        if(cell.treasure){
+          tile.innerHTML='<div><div class="th-treasure-mark">◆</div><span class="th-treasure-text">SKARB</span></div>';
+        }else{
+          const rawTask=String(cell.text||'').trim();
+          const mathTask=(rawTask.startsWith('\\(') || rawTask.startsWith('\\[') || rawTask.startsWith('$'))
+            ? rawTask
+            : '\\(' + rawTask + '\\)';
+          tile.innerHTML='<div class="th-task">'+mathTask+'</div>';
+        }
+
+        const cover=document.createElement('span');
+        cover.className='th-cover';
+        if(logo){
+          const img=document.createElement('img');
+          img.src=logo;
+          img.alt='';
+          cover.appendChild(img);
+        }else{
+          cover.innerHTML='<strong style="font-size:34px;color:var(--violet)">?</strong>';
+        }
+        if(data.showNumbers!==false){
+          const num=document.createElement('span');
+          num.className='th-cover-number';
+          num.textContent=String(i+1);
+          cover.appendChild(num);
+        }
+        tile.appendChild(cover);
+
+        tile.addEventListener('click',function(){
+          if(!tile.classList.contains('revealed')){
+            tile.classList.add('revealed');
+            if(cell.treasure){
+              tile.classList.add('treasure');
+              found++;
+              foundEl.textContent=String(found);
+              msg.textContent=found>=(data.treasureCount||1) ? 'Wszystkie skarby znalezione!' : 'Skarb znaleziony! Szukaj dalej.';
+              if(found>=(data.treasureCount||1)){
+                msg.classList.add('win');
+                if(typeof confetti==='function') confetti();
+              }
+            }else{
+              if(hintsOn){
+                const badge=document.createElement('span');
+                badge.className='th-hint';
+                badge.textContent=hintLabel(nearest(i));
+                tile.appendChild(badge);
+                setTimeout(function(){badge.remove();},1500);
+              }
+              msg.textContent='Rozwiąż odkryte zadanie. Potem wybierz kolejne pole.';
+            }
+            if(typeof typeset==='function') typeset(tile);
+          }else if(!cell.treasure && data.allowCross!==false){
+            tile.classList.toggle('crossed');
+          }
+        });
+
+        board.appendChild(tile);
+      });
+
+      if(window.MathJax && MathJax.typesetClear){
+        try{ MathJax.typesetClear([board]); }catch(e){}
+      }
+      if(window.MathJax && MathJax.typesetPromise){
+        MathJax.typesetPromise([board]).catch(function(){});
+      }else if(typeof typeset==='function'){
+        typeset(board);
+      }
+    }
+
+    if(hintsBtn){
+      hintsBtn.addEventListener('click',function(){
+        hintsOn=!hintsOn;
+        refreshHintsButton();
+        container.querySelectorAll('.th-hint').forEach(function(x){x.remove();});
+      });
+    }
+    container.querySelector('.th-reset').addEventListener('click',draw);
+    container.querySelector('.th-new').addEventListener('click',function(){
+      round=buildRound(data);
+      draw();
+    });
+
+    draw();
+  }
+
+  function hook(){
+    ensureUi();
+
+    const oldChange=window.onGameTypeChange;
+    if(!window.__thChangeHook){
+      window.__thChangeHook=true;
+      window.onGameTypeChange=function(){
+        if(typeof oldChange==='function') oldChange.apply(this,arguments);
+        const active=q('gameType')?.value==='treasure';
+        const fields=q('treasureFields');
+        if(fields) fields.style.display=active?'block':'none';
+        if(active){
+          ['matchFields','sortFields','quizFields','memoryFields','puzzleFields','safeFields','flyingFields','trainingFields','fractionModelsFields','connect4Fields']
+            .forEach(function(id){const el=q(id);if(el)el.style.display='none';});
+          updateCapacity();
+        }
+      };
+    }
+
+    const oldGet=window.getCurrentGameData;
+    if(!window.__thGetHook){
+      window.__thGetHook=true;
+      window.getCurrentGameData=function(){
+        if(q('gameType')?.value==='treasure') return treasureData();
+        const g=oldGet.apply(this,arguments);
+        /* OSTATECZNA NAPRAWA TAGÓW:
+           tagi są pobierane w momencie zapisu niezależnie od kolejności wcześniejszych wrapperów. */
+        g.classTags=selectedTagsNow();
+        g.tags=g.classTags.slice();
+        return g;
+      };
+    }
+
+    const oldRender=window.renderGame;
+    if(!window.__thRenderHook){
+      window.__thRenderHook=true;
+      window.renderGame=function(data,container,isFullscreen){
+        if(data && data.type==='treasure'){
+          renderTreasure(data,container,isFullscreen);
+          return;
+        }
+        return oldRender.apply(this,arguments);
+      };
+    }
+
+    const oldLoad=window.loadSavedGame;
+    if(!window.__thLoadHook){
+      window.__thLoadHook=true;
+      window.loadSavedGame=function(index){
+        let local=[];
+        try{local=JSON.parse(localStorage.getItem('doPotegiGames')||'[]');}catch(e){}
+        const possible=local[index];
+
+        if(possible && possible.type==='treasure'){
+          q('gameTitle').value=possible.title||'Poszukiwanie skarbów';
+          q('gameType').value='treasure';
+          setTagsNow(possible.classTags||possible.tags||[]);
+          window.onGameTypeChange();
+          q('treasureGridSize').value=String(possible.gridSize||5);
+          q('treasureCount').value=String(possible.treasureCount||1);
+          q('treasureHints').checked=possible.hints!==false;
+          q('treasureCross').checked=possible.allowCross!==false;
+          q('treasureNumbers').checked=possible.showNumbers!==false;
+          q('treasureInput').value=(possible.tasks||[]).join('\n');
+          updateCapacity();
+
+          /* Wywołujemy pierwotny loader tylko po to, aby zachować wewnętrzny stan
+             „edytowana gra”, po czym przywracamy pola tego trybu. */
+          if(typeof oldLoad==='function'){
+            try{ oldLoad.apply(this,arguments); }catch(e){}
+            q('gameTitle').value=possible.title||'Poszukiwanie skarbów';
+            q('gameType').value='treasure';
+            setTagsNow(possible.classTags||possible.tags||[]);
+            window.onGameTypeChange();
+            q('treasureGridSize').value=String(possible.gridSize||5);
+            q('treasureCount').value=String(possible.treasureCount||1);
+            q('treasureHints').checked=possible.hints!==false;
+            q('treasureCross').checked=possible.allowCross!==false;
+            q('treasureNumbers').checked=possible.showNumbers!==false;
+            q('treasureInput').value=(possible.tasks||[]).join('\n');
+            updateCapacity();
+          }
+          if(typeof showScreen==='function') showScreen('creator');
+          if(typeof buildGame==='function') buildGame(false);
+          return;
+        }
+
+        const result=oldLoad.apply(this,arguments);
+
+        /* NAPRAWA TAGÓW także dla wszystkich starszych typów gier. */
+        setTimeout(function(){
+          let games=[];
+          try{games=JSON.parse(localStorage.getItem('doPotegiGames')||'[]');}catch(e){}
+          const game=games[index];
+          if(game) setTagsNow(game.classTags||game.tags||[]);
+        },0);
+        return result;
+      };
+    }
+
+    const oldSaved=window.renderSavedGames;
+    if(!window.__thSavedHook){
+      window.__thSavedHook=true;
+      window.renderSavedGames=function(){
+        const r=oldSaved.apply(this,arguments);
+        setTimeout(function(){
+          document.querySelectorAll('.saved-game[data-game-type="treasure"] .saved-type-badge')
+            .forEach(function(b){b.textContent='Poszukiwanie skarbów';});
+        },0);
+        return r;
+      };
+    }
+
+    if(typeof window.onGameTypeChange==='function') window.onGameTypeChange();
+  }
+
+  if(document.readyState==='loading'){
+    document.addEventListener('DOMContentLoaded',function(){setTimeout(hook,0);});
+  }else{
+    setTimeout(hook,0);
+  }
+})();
+</script>
 
 </body>
 </html>
