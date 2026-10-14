@@ -1,0 +1,39 @@
+
+.math-keyboard{
+  max-height:46vh !important;
+  overflow-y:auto !important;
+  padding:10px 14px !important;
+  z-index:9999 !important;
+}
+
+.power-builder,
+.root-builder{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:8px;
+}
+
+.power-builder input,
+.root-builder input{
+  width:86px;
+  padding:8px 10px;
+  border:2px solid var(--line);
+  border-radius:12px;
+  text-align:center;
+  font-size:18px;
+  font-family:'Khand',sans-serif;
+}
+
+.builder-insert-btn,
+.keyboard-enter-btn{
+  background:var(--violet) !important;
+  color:#fff !important;
+  border-color:var(--violet) !important;
+}
+
+.keyboard-enter-btn{
+  background:var(--red) !important;
+  border-color:var(--red) !important;
+}

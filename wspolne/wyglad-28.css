@@ -1,0 +1,19 @@
+
+.pair-card.left{
+  -webkit-user-select:none !important;
+  user-select:none !important;
+  touch-action:manipulation !important;
+}
+.pair-card.drop{
+  touch-action:manipulation !important;
+}
+.pair-card.left.selected-touch{
+  border-color:var(--violet) !important;
+  box-shadow:0 0 0 5px rgba(51,0,204,.14) !important;
+  transform:scale(1.015) !important;
+}
+.match-touch-hint{
+  margin:0 0 14px;
+  color:var(--muted);
+  font-size:18px;
+}

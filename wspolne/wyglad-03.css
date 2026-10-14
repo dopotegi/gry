@@ -1,0 +1,96 @@
+
+.math-keyboard{
+  position:fixed;
+  left:50%;
+  bottom:18px;
+  transform:translateX(-50%);
+  width:min(860px, calc(100vw - 32px));
+  background:#fff;
+  border:2px solid var(--line);
+  border-radius:26px;
+  box-shadow:0 18px 50px rgba(51,0,204,.22);
+  padding:16px;
+  z-index:600;
+  display:none;
+}
+
+.math-keyboard.active{
+  display:block;
+}
+
+.keyboard-top{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.keyboard-top strong{
+  color:var(--violet);
+  font-size:25px;
+}
+
+.keyboard-grid{
+  display:grid;
+  grid-template-columns:repeat(10, minmax(0,1fr));
+  gap:8px;
+}
+
+.key-btn{
+  border:2px solid var(--line);
+  background:#fff;
+  color:#111;
+  border-radius:15px;
+  min-height:48px;
+  font-size:22px;
+  font-weight:700;
+  cursor:pointer;
+}
+
+.key-btn:hover{
+  border-color:var(--violet);
+  background:var(--soft);
+}
+
+.key-btn.violet{
+  background:var(--violet);
+  color:#fff;
+  border-color:var(--violet);
+}
+
+.key-btn.red{
+  background:var(--red);
+  color:#fff;
+  border-color:var(--red);
+}
+
+.frac-maker{
+  display:flex;
+  gap:8px;
+  align-items:center;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.frac-maker input{
+  width:110px;
+  padding:8px 10px;
+  border-radius:14px;
+  font-size:19px;
+}
+
+.frac-maker span{
+  font-size:20px;
+  color:#555;
+}
+
+@media(max-width:760px){
+  .keyboard-grid{
+    grid-template-columns:repeat(5, minmax(0,1fr));
+  }
+
+  .math-keyboard{
+    bottom:8px;
+  }
+}

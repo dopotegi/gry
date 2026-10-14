@@ -1,0 +1,15 @@
+
+.math-keyboard{
+  z-index:9999 !important;
+}
+
+.keyboard-enter-btn{
+  background:var(--red) !important;
+  color:#fff !important;
+  border-color:var(--red) !important;
+  min-width:120px;
+}
+
+.keyboard-enter-btn:hover{
+  filter:brightness(1.06);
+}

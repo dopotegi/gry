@@ -1,0 +1,77 @@
+
+/* bardziej kompaktowa klawiatura, szczególnie na pełnym ekranie/tablecie */
+.math-keyboard{
+  max-height:46vh !important;
+  overflow-y:auto !important;
+  padding:10px 14px !important;
+}
+
+.math-keyboard .keyboard-top{
+  margin-bottom:8px !important;
+}
+
+.math-keyboard .keyboard-top strong{
+  font-size:22px !important;
+}
+
+.math-keyboard .keyboard-grid{
+  gap:7px !important;
+}
+
+.math-keyboard .key-btn{
+  min-height:40px !important;
+  font-size:20px !important;
+  border-radius:13px !important;
+}
+
+.math-keyboard input{
+  min-height:38px !important;
+  font-size:18px !important;
+}
+
+.math-keyboard .frac-maker,
+.math-keyboard .power-builder,
+.math-keyboard .root-builder{
+  margin-top:8px !important;
+  gap:7px !important;
+}
+
+.math-keyboard .btn,
+.math-keyboard .upload-label{
+  padding:7px 12px !important;
+  font-size:18px !important;
+}
+
+/* w treningu niech przykład i pole odpowiedzi siedzą wyżej, żeby klawiatura mniej przeszkadzała */
+.fullscreen-overlay .training-card,
+.fullscreen-game .training-card{
+  justify-content:flex-start !important;
+  padding-top:26px !important;
+  gap:16px !important;
+}
+
+.fullscreen-overlay .training-example,
+.fullscreen-game .training-example{
+  padding:22px 22px !important;
+  font-size:44px !important;
+}
+
+.fullscreen-overlay .training-answer,
+.fullscreen-game .training-answer{
+  margin-bottom:6px !important;
+}
+
+@media(max-height:760px){
+  .math-keyboard{
+    max-height:43vh !important;
+  }
+
+  .math-keyboard .key-btn{
+    min-height:36px !important;
+    font-size:18px !important;
+  }
+
+  .math-keyboard input{
+    width:86px !important;
+  }
+}

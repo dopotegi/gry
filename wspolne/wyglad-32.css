@@ -1,0 +1,187 @@
+
+/* Kompaktowy tryb modeli ułamków w widoku pełnoekranowym */
+#fullscreenContent > .game-head:has(+ .fm-stage),
+.fullscreen-game #fullscreenContent > .game-head:has(+ .fm-stage){
+  display:none !important;
+}
+
+.fullscreen-game:has(.fm-stage){
+  padding:10px 14px !important;
+  overflow:hidden !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fullscreen-inner{
+  max-width:1320px !important;
+  height:calc(100vh - 20px) !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fullscreen-top{
+  flex:0 0 auto !important;
+  min-height:58px !important;
+  margin-bottom:8px !important;
+  padding:6px 12px !important;
+  border-radius:20px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fullscreen-brand img{
+  width:48px !important;
+  height:48px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fullscreen-brand strong{
+  font-size:27px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fullscreen-brand span{
+  font-size:14px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fullscreen-top .btn{
+  padding:7px 14px !important;
+  font-size:18px !important;
+  border-radius:14px !important;
+}
+
+.fullscreen-game:has(.fm-stage) #fullscreenContent{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-stage{
+  height:100% !important;
+  min-height:0 !important;
+  padding:12px 18px !important;
+  border-radius:24px !important;
+  overflow:hidden !important;
+  display:flex !important;
+  flex-direction:column !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-top{
+  flex:0 0 auto !important;
+  margin-bottom:8px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-question{
+  font-size:34px !important;
+  line-height:1 !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-layout{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  grid-template-columns:minmax(0,1fr) 260px !important;
+  gap:14px !important;
+  align-items:stretch !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-work{
+  min-height:0 !important;
+  height:100% !important;
+  gap:8px !important;
+  justify-content:flex-start !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-target{
+  flex:0 0 118px !important;
+  min-height:118px !important;
+  width:100% !important;
+  padding:8px 12px !important;
+  gap:6px !important;
+  border-radius:20px !important;
+  overflow:hidden !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-target .fm-shape svg{
+  width:66px !important;
+  height:66px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-bank-wrap{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  width:100% !important;
+  padding:7px 10px 9px !important;
+  border-radius:20px !important;
+  overflow:hidden !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-bank-wrap .bank-note{
+  font-size:15px !important;
+  line-height:1 !important;
+  margin:0 0 5px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-bank{
+  display:grid !important;
+  grid-template-columns:repeat(7,minmax(48px,1fr)) !important;
+  gap:5px !important;
+  align-content:center !important;
+  padding:0 !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-piece{
+  min-width:0 !important;
+  min-height:58px !important;
+  height:58px !important;
+  padding:3px !important;
+  border-radius:12px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-piece .fm-shape svg{
+  width:48px !important;
+  height:48px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-controls{
+  flex:0 0 auto !important;
+  gap:8px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-controls .btn{
+  padding:6px 15px !important;
+  font-size:18px !important;
+  border-radius:13px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-feedback{
+  flex:0 0 42px !important;
+  min-height:42px !important;
+  max-height:42px !important;
+  overflow:hidden !important;
+  font-size:19px !important;
+  line-height:1.1 !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  padding:0 8px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-answer-list{
+  gap:8px !important;
+}
+
+.fullscreen-game:has(.fm-stage) .fm-answer{
+  min-height:76px !important;
+  padding:8px 12px !important;
+  font-size:30px !important;
+  border-radius:18px !important;
+}
+
+@media (max-height:800px){
+  .fullscreen-game:has(.fm-stage) .fullscreen-top{min-height:50px !important;}
+  .fullscreen-game:has(.fm-stage) .fullscreen-brand img{width:40px !important;height:40px !important;}
+  .fullscreen-game:has(.fm-stage) .fm-question{font-size:29px !important;}
+  .fullscreen-game:has(.fm-stage) .fm-target{flex-basis:96px !important;min-height:96px !important;}
+  .fullscreen-game:has(.fm-stage) .fm-target .fm-shape svg{width:56px !important;height:56px !important;}
+  .fullscreen-game:has(.fm-stage) .fm-piece{height:50px !important;min-height:50px !important;}
+  .fullscreen-game:has(.fm-stage) .fm-piece .fm-shape svg{width:42px !important;height:42px !important;}
+  .fullscreen-game:has(.fm-stage) .fm-feedback{flex-basis:34px !important;min-height:34px !important;max-height:34px !important;font-size:17px !important;}
+}
+
+@media (max-width:900px){
+  .fullscreen-game:has(.fm-stage){overflow:auto !important;}
+  .fullscreen-game:has(.fm-stage) .fm-layout{grid-template-columns:1fr !important;}
+}

@@ -1,0 +1,4 @@
+
+#start .game-type-grid{display:grid !important;grid-template-columns:repeat(3,minmax(240px,1fr)) !important;gap:22px !important;align-items:stretch !important;}
+@media(max-width:1050px){#start .game-type-grid{grid-template-columns:repeat(2,minmax(240px,1fr)) !important;}}
+@media(max-width:650px){#start .game-type-grid{grid-template-columns:1fr !important;}}

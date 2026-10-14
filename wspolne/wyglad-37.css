@@ -1,0 +1,122 @@
+
+/* ===== PRAWDA / FAŁSZ ===== */
+.tf-help{
+  margin-top:7px;
+  color:var(--muted);
+  font-size:16px;
+  line-height:1.25;
+}
+.tf-stage{
+  display:flex;
+  flex-direction:column;
+  gap:18px;
+  align-items:center;
+  justify-content:center;
+  min-height:500px;
+  padding:24px;
+  border:2px solid var(--line);
+  border-radius:26px;
+  background:linear-gradient(135deg,#fff 0%,#f8f6ff 100%);
+}
+.tf-top{
+  width:min(900px,100%);
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+.tf-progress{
+  color:var(--violet);
+  font-size:21px;
+  font-weight:800;
+}
+.tf-score{
+  color:var(--green);
+  font-size:21px;
+  font-weight:800;
+}
+.tf-card{
+  width:min(900px,100%);
+  min-height:220px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:28px;
+  border:2px solid #cfc5ff;
+  border-radius:24px;
+  background:#fff;
+  font-size:clamp(24px,3.2vw,42px);
+  font-weight:800;
+  line-height:1.25;
+  box-shadow:0 10px 26px rgba(51,0,204,.08);
+}
+.tf-buttons{
+  width:min(900px,100%);
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+}
+.tf-answer{
+  min-height:92px;
+  border-radius:22px;
+  border:3px solid;
+  background:#fff;
+  font-family:inherit;
+  font-size:clamp(25px,3vw,38px);
+  font-weight:900;
+  cursor:pointer;
+  transition:.16s;
+}
+.tf-answer:hover{transform:translateY(-2px)}
+.tf-true{border-color:#1d9b63;color:#117445}
+.tf-false{border-color:var(--red);color:var(--red)}
+.tf-answer.correct{
+  background:#eaf8f1;
+  border-color:#1d9b63;
+  color:#117445;
+}
+.tf-answer.wrong{
+  background:#fff0f0;
+  border-color:var(--red);
+  color:var(--red);
+}
+.tf-feedback{
+  min-height:32px;
+  font-size:21px;
+  font-weight:800;
+  text-align:center;
+}
+.tf-feedback.good{color:#117445}
+.tf-feedback.bad{color:var(--red)}
+.tf-next{
+  min-width:210px;
+}
+.saved-game[data-game-type="truefalse"] .saved-type-badge{
+  background:#f1edff;
+  color:#3300CC;
+}
+.fullscreen-game:has(.tf-stage){overflow:hidden !important}
+.fullscreen-game:has(.tf-stage) .game-head{display:none !important}
+.fullscreen-game .tf-stage{
+  height:calc(100vh - 120px);
+  min-height:0;
+  max-height:calc(100vh - 120px);
+  padding:16px 24px;
+}
+.fullscreen-game .tf-card{
+  min-height:0;
+  flex:1 1 auto;
+}
+@media(max-height:760px){
+  .fullscreen-game .tf-stage{gap:10px;padding:10px 18px}
+  .fullscreen-game .tf-card{padding:15px;font-size:clamp(22px,3.7vh,34px)}
+  .fullscreen-game .tf-answer{min-height:68px;font-size:clamp(21px,3.2vh,30px)}
+  .fullscreen-game .tf-feedback{font-size:17px;min-height:22px}
+}
+@media(max-width:620px){
+  .tf-buttons{grid-template-columns:1fr}
+  .tf-stage{padding:14px}
+  .tf-card{min-height:180px;padding:18px}
+}

@@ -1,0 +1,95 @@
+
+/* Większe, czytelniejsze modele przy zachowaniu widoku bez przewijania */
+.fullscreen-game:has(.fm-stage) .fm-stage{
+  padding:9px 16px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-top{
+  margin-bottom:5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-work{
+  gap:5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-target{
+  flex-basis:124px !important;
+  min-height:124px !important;
+  padding:5px 10px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-target .fm-shape svg{
+  width:82px !important;
+  height:82px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-bank-wrap{
+  padding:5px 8px 7px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-bank-wrap .bank-note{
+  margin-bottom:3px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-bank{
+  gap:4px 5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-piece{
+  min-height:66px !important;
+  height:66px !important;
+  padding:2px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-piece .fm-shape svg{
+  width:58px !important;
+  height:58px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-controls .btn{
+  padding-top:5px !important;
+  padding-bottom:5px !important;
+}
+.fullscreen-game:has(.fm-stage) .fm-feedback{
+  flex-basis:36px !important;
+  min-height:36px !important;
+  max-height:36px !important;
+  font-size:18px !important;
+}
+
+@media (max-height:800px){
+  .fullscreen-game:has(.fm-stage) .fullscreen-top{
+    min-height:46px !important;
+    margin-bottom:5px !important;
+    padding-top:4px !important;
+    padding-bottom:4px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fullscreen-brand img{
+    width:36px !important;
+    height:36px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fullscreen-brand strong{
+    font-size:24px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fullscreen-brand span{
+    font-size:12px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-stage{
+    padding:7px 14px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-question{
+    font-size:30px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-target{
+    flex-basis:108px !important;
+    min-height:108px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-target .fm-shape svg{
+    width:70px !important;
+    height:70px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-piece{
+    min-height:60px !important;
+    height:60px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-piece .fm-shape svg{
+    width:53px !important;
+    height:53px !important;
+  }
+  .fullscreen-game:has(.fm-stage) .fm-feedback{
+    flex-basis:30px !important;
+    min-height:30px !important;
+    max-height:30px !important;
+    font-size:16px !important;
+  }
+}

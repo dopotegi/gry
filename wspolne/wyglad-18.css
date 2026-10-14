@@ -1,0 +1,45 @@
+
+.fullscreen-overlay .math-keyboard,
+#fullscreen .math-keyboard,
+.fullscreen-game .math-keyboard{
+  position:fixed !important;
+  left:50% !important;
+  right:auto !important;
+  bottom:10px !important;
+  transform:translateX(-50%) !important;
+  width:min(1050px, calc(100vw - 36px)) !important;
+  max-height:34vh !important;
+  overflow-y:auto !important;
+  padding:10px 14px !important;
+  z-index:9999 !important;
+}
+.fullscreen-overlay .training-card,
+#fullscreen .training-card,
+.fullscreen-game .training-card{
+  justify-content:flex-start !important;
+  min-height:calc(100vh - 280px) !important;
+  padding-top:18px !important;
+  padding-bottom:260px !important;
+  gap:12px !important;
+}
+.fullscreen-overlay .training-example,
+#fullscreen .training-example,
+.fullscreen-game .training-example{
+  padding:18px 22px !important;
+  font-size:42px !important;
+}
+.fullscreen-overlay .training-answer,
+#fullscreen .training-answer,
+.fullscreen-game .training-answer{
+  font-size:26px !important;
+  padding:12px 18px !important;
+}
+.fullscreen-overlay .training-feedback,
+#fullscreen .training-feedback,
+.fullscreen-game .training-feedback{
+  min-height:32px !important;
+  font-size:24px !important;
+}
+body:not(.game-fullscreen-active) .math-keyboard.creator-hidden{
+  display:none !important;
+}

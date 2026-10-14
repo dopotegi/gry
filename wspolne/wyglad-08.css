@@ -1,0 +1,64 @@
+
+/* wygodniejszy układ startowy */
+#start .card{
+  padding:34px 34px 38px !important;
+}
+
+#start h1{
+  margin-bottom:10px !important;
+}
+
+#start .lead{
+  margin-bottom:26px !important;
+}
+
+#start .game-type-grid{
+  grid-template-columns:repeat(3, minmax(240px, 1fr)) !important;
+  gap:22px !important;
+  align-items:stretch !important;
+}
+
+#start .game-type{
+  min-height:0 !important;
+  height:100% !important;
+  padding:24px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  justify-content:flex-start !important;
+}
+
+#start .game-type h2{
+  font-size:34px !important;
+  line-height:1.02 !important;
+  margin-bottom:12px !important;
+}
+
+#start .game-type p{
+  font-size:21px !important;
+  line-height:1.25 !important;
+  margin:0 !important;
+}
+
+#start .icon{
+  width:58px !important;
+  height:58px !important;
+  border-radius:18px !important;
+  font-size:30px !important;
+  margin-bottom:18px !important;
+}
+
+@media(max-width:1050px){
+  #start .game-type-grid{
+    grid-template-columns:repeat(2, minmax(240px, 1fr)) !important;
+  }
+}
+
+@media(max-width:650px){
+  #start .game-type-grid{
+    grid-template-columns:1fr !important;
+  }
+
+  #start .card{
+    padding:24px !important;
+  }
+}

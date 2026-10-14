@@ -1,0 +1,45 @@
+GRY DO POTĘGI — JAK WGRAĆ NOWĄ WERSJĘ
+
+Najwygodniej zrób to na komputerze.
+
+1. Pobierz paczkę Gry_Do_Potegi_do_wgrania.zip i rozpakuj ją.
+2. Otwórz https://github.com/dopotegi/gry i zaloguj się na GitHubie.
+3. Na stronie z listą plików wybierz „Add file”, a potem „Upload files”.
+   Jeżeli widzisz tylko przycisk „+”, poszukaj w nim „Upload files”.
+4. Otwórz rozpakowaną paczkę na komputerze. Zaznacz jej ZAWARTOŚĆ:
+   index.html, wersja-poprzednia.html, foldery gry, wspolne i obrazy,
+   a także pliki instrukcji. Przeciągnij je razem do pola przesyłania na GitHubie.
+   Ważne: przeciągnij zawartość paczki, nie ZIP i nie folder otaczający całą paczkę.
+5. Zaczekaj, aż wszystkie pliki się wczytają. Na liście powinny być między innymi:
+   index.html
+   gry/memory.js
+   wspolne/podstawa.js
+   obrazy/obraz-1.png
+   Dotychczasowy index.html zostanie zastąpiony nowym. To jest zamierzone.
+6. Na dole strony kliknij zielony „Commit changes”. Jeśli pokaże się dodatkowe
+   okienko, pozostaw zapis bezpośrednio do obecnej gałęzi i potwierdź.
+7. Poczekaj kilka minut i otwórz https://dopotegi.github.io/gry/.
+   Odśwież stronę. Na komputerze możesz użyć Ctrl+F5.
+8. Otwórz „Moje gry”, uruchom jeden ze swoich zestawów i sprawdź logowanie
+   oraz synchronizację. Jeżeli coś budzi wątpliwości, zrób zdjęcie i prześlij
+   je w tej rozmowie. Nie usuwaj zapisanych zestawów ani danych przeglądarki.
+
+CO ZMIENI SIĘ DLA CIEBIE
+Strona ma wyglądać i działać jak wcześniej. Gry otrzymały oddzielne pliki.
+Przy następnej poprawce napisz po prostu, co zmieniamy, i podaj link strony.
+Otrzymasz ode mnie konkretne pliki do podmiany. Nie musisz edytować kodu.
+Nowy tryb będzie wymagał dodania jego plików oraz połączenia go z menu.
+
+JAK WRÓCIĆ DO POPRZEDNIEJ WERSJI
+W paczce masz dokładną kopię poprzedniej strony: wersja-poprzednia.html.
+Jeśli trzeba wrócić, skopiuj ten plik na komputerze do osobnego folderu,
+nazwij kopię index.html i wgraj ją na GitHub tak jak w punktach 2–6.
+Pozostałe pliki mogą zostać. Wersja poprzednia używa własnego kodu.
+
+SPRAWDZENIE
+Porównano obie wersje w przeglądarce: lista 12 trybów, przełączanie formularzy,
+podglądy i otwieranie/zamykanie pełnego ekranu. Brak nowych błędów JavaScript.
+Usługi zewnętrzne były w tym porównaniu wyłączone. Nie potwierdza to logowania,
+synchronizacji Firebase ani pobierania MathJax online; ich kod i adresy zachowano.
+To podział istniejącego kodu, bez przepisywania mechaniki. Nie usuwa wszystkich
+zależności między grami: wspólne funkcje nadal wymagają sprawdzania po zmianach.

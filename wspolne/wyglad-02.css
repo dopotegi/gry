@@ -1,0 +1,34 @@
+
+.memory-card{
+  transform-style:flat !important;
+}
+
+.memory-card .front,
+.memory-card .back{
+  transform:none !important;
+  backface-visibility:visible !important;
+}
+
+.memory-card .front{
+  display:flex !important;
+}
+
+.memory-card .back{
+  display:none !important;
+}
+
+.memory-card.flipped{
+  transform:none !important;
+}
+
+.memory-card.flipped .front{
+  display:none !important;
+}
+
+.memory-card.flipped .back{
+  display:flex !important;
+}
+
+.memory-card.matched .back{
+  background:#effaf5 !important;
+}

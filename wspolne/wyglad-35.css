@@ -1,0 +1,85 @@
+
+/* 4 w linii v3: cały ekran bez przewijania + czytelniejsze liczby */
+.fullscreen-game:has(.c4-stage){overflow:hidden !important;}
+.fullscreen-game:has(.c4-stage) .game-head{display:none !important;}
+.fullscreen-game:has(.c4-stage) .card{padding:8px 12px 10px !important; margin:0 auto !important;}
+.fullscreen-game .c4-stage{
+  padding:8px 12px 9px !important;
+  border-radius:20px !important;
+  height:calc(100vh - 112px) !important;
+  max-height:calc(100vh - 112px) !important;
+  box-sizing:border-box !important;
+  display:flex !important;
+  flex-direction:column !important;
+  overflow:hidden !important;
+}
+.fullscreen-game .c4-top{
+  flex:0 0 auto !important;
+  grid-template-columns:minmax(170px,1fr) minmax(220px,1.2fr) minmax(170px,1fr) !important;
+  gap:10px !important;
+  margin-bottom:7px !important;
+}
+.fullscreen-game .c4-player{
+  padding:5px 10px !important;
+  min-height:46px !important;
+  font-size:20px !important;
+  line-height:1.05 !important;
+  border-radius:14px !important;
+}
+.fullscreen-game .c4-player.active{box-shadow:0 5px 16px rgba(51,0,204,.20) !important;}
+.fullscreen-game .c4-player.active::after{font-size:12px !important;margin-top:3px !important;}
+.fullscreen-game .c4-task-label{font-size:17px !important;line-height:1 !important;}
+.fullscreen-game .c4-task{font-size:31px !important;min-height:39px !important;line-height:1 !important;}
+.fullscreen-game .c4-board{
+  flex:1 1 auto !important;
+  min-height:0 !important;
+  width:min(96vw,980px) !important;
+  max-height:none !important;
+  margin:0 auto !important;
+  gap:5px !important;
+  align-content:stretch !important;
+  grid-auto-rows:minmax(0,1fr) !important;
+}
+.fullscreen-game .c4-cell{
+  aspect-ratio:auto !important;
+  min-height:0 !important;
+  height:auto !important;
+  border-radius:10px !important;
+  font-family:'Khand',sans-serif !important;
+  font-size:clamp(19px,2.35vh,25px) !important;
+  line-height:1 !important;
+  font-weight:700 !important;
+  padding:2px !important;
+}
+.fullscreen-game .c4-bottom{
+  flex:0 0 auto !important;
+  min-height:34px !important;
+  margin-top:6px !important;
+  gap:10px !important;
+}
+.fullscreen-game .c4-status{
+  min-height:22px !important;
+  font-family:'Khand',sans-serif !important;
+  font-size:18px !important;
+  line-height:1.05 !important;
+}
+.fullscreen-game .c4-bottom .btn{padding:7px 15px !important;font-size:17px !important;}
+
+@media (max-height:760px){
+  .fullscreen-game .c4-stage{height:calc(100vh - 96px) !important;max-height:calc(100vh - 96px) !important;padding:6px 10px 7px !important;}
+  .fullscreen-game .c4-top{margin-bottom:5px !important;}
+  .fullscreen-game .c4-player{min-height:40px !important;font-size:18px !important;padding:4px 8px !important;}
+  .fullscreen-game .c4-player.active::after{font-size:10px !important;}
+  .fullscreen-game .c4-task-label{font-size:15px !important;}
+  .fullscreen-game .c4-task{font-size:27px !important;min-height:34px !important;}
+  .fullscreen-game .c4-board{gap:4px !important;width:min(94vw,930px) !important;}
+  .fullscreen-game .c4-cell{font-size:clamp(18px,2.25vh,22px) !important;border-radius:8px !important;}
+  .fullscreen-game .c4-bottom{margin-top:4px !important;min-height:30px !important;}
+  .fullscreen-game .c4-status{font-size:16px !important;}
+  .fullscreen-game .c4-bottom .btn{padding:5px 12px !important;font-size:15px !important;}
+}
+
+/* Podgląd poza pełnym ekranem też nie może rozjeżdżać kontenera. */
+.c4-stage{overflow:hidden;}
+.c4-board{grid-auto-rows:minmax(58px,1fr);}
+.c4-cell{font-family:'Khand',sans-serif;font-weight:700;font-size:clamp(19px,2.2vh,24px);}

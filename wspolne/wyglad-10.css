@@ -1,0 +1,59 @@
+
+.saved-filter-panel{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  align-items:center;
+  margin:0 0 24px 0;
+  padding:16px;
+  border:2px solid var(--line);
+  border-radius:24px;
+  background:#fff;
+  box-shadow:0 10px 28px rgba(51,0,204,.08);
+}
+
+.saved-filter-panel-title{
+  color:var(--violet);
+  font-weight:800;
+  font-size:22px;
+  margin-right:8px;
+}
+
+.saved-filter-button{
+  border:2px solid rgba(51,0,204,.22);
+  background:#fff;
+  color:var(--violet);
+  border-radius:999px;
+  padding:8px 15px;
+  font-size:18px;
+  font-weight:800;
+  cursor:pointer;
+  font-family:'Khand',sans-serif;
+}
+
+.saved-filter-button.active{
+  background:var(--violet);
+  color:#fff;
+  border-color:var(--violet);
+}
+
+.saved-type-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:7px;
+  border-radius:999px;
+  padding:6px 14px;
+  background:rgba(51,0,204,.08);
+  color:var(--violet);
+  font-size:18px;
+  font-weight:800;
+  white-space:nowrap;
+}
+
+.saved-game[data-game-type="quiz"] .saved-type-badge{background:#fff2cc;color:#7a5600;}
+.saved-game[data-game-type="memory"] .saved-type-badge{background:#edf5ff;color:#0c4c91;}
+.saved-game[data-game-type="puzzle"] .saved-type-badge{background:#effaf5;color:#096540;}
+.saved-game[data-game-type="safe"] .saved-type-badge{background:#f2ecff;color:#3300CC;}
+.saved-game[data-game-type="flying"] .saved-type-badge{background:#fff0f0;color:#E30613;}
+.saved-game[data-game-type="match"] .saved-type-badge{background:#f3efff;color:#3300CC;}
+.saved-game[data-game-type="sort"] .saved-type-badge{background:#fff7e6;color:#8a5200;}

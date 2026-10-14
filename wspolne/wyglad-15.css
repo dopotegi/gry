@@ -1,0 +1,27 @@
+
+.power-builder,
+.root-builder{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-top:10px;
+}
+
+.power-builder input,
+.root-builder input{
+  width:72px;
+  padding:8px 10px;
+  border:2px solid var(--line);
+  border-radius:12px;
+  text-align:center;
+  font-size:18px;
+  font-family:'Khand',sans-serif;
+}
+
+.builder-insert-btn{
+  background:var(--violet) !important;
+  color:white !important;
+  border-color:var(--violet) !important;
+  white-space:nowrap;
+}

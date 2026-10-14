@@ -1,0 +1,15 @@
+
+/* niżej w treningu fullscreen */
+.fullscreen-overlay .math-keyboard,
+.fullscreen-game .math-keyboard,
+body.fullscreen-active .math-keyboard{
+  margin-top:28px !important;
+  bottom:4px !important;
+}
+
+/* lekkie odsunięcie pola odpowiedzi od klawiatury */
+.fullscreen-overlay .training-answer,
+.fullscreen-game .training-answer,
+body.fullscreen-active .training-answer{
+  margin-bottom:18px !important;
+}

@@ -1,0 +1,13 @@
+
+.flying-stage{position:relative;min-height:560px;border:2px solid var(--line);border-radius:32px;overflow:hidden;background:radial-gradient(circle at 20% 20%,rgba(51,0,204,.16),transparent 22%),radial-gradient(circle at 80% 25%,rgba(227,6,19,.10),transparent 18%),linear-gradient(135deg,#fff 0%,#f7f4ff 100%)}
+.flying-topbar{position:absolute;left:18px;right:18px;top:16px;z-index:10;display:flex;justify-content:space-between;align-items:center;gap:12px;pointer-events:none}
+.flying-question{position:absolute;left:50%;top:70px;transform:translateX(-50%);z-index:10;min-width:min(760px,calc(100% - 36px));text-align:center;background:#fff;border:2px solid var(--line);border-radius:26px;box-shadow:0 18px 36px rgba(51,0,204,.14);padding:18px 24px;color:var(--violet);font-size:42px;font-weight:700;line-height:1.1}
+.flying-pill{background:#fff;color:var(--violet);border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700;font-size:22px;box-shadow:0 10px 24px rgba(51,0,204,.10)}
+.flying-lives{color:var(--red)}
+.flying-answer{position:absolute;min-width:92px;min-height:68px;border-radius:999px;background:linear-gradient(135deg,#fff 0%,#ffe9ef 100%);color:#111;border:3px solid rgba(51,0,204,.24);box-shadow:0 16px 34px rgba(51,0,204,.18);font-size:28px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:12px 20px;transition:transform .12s,filter .12s;z-index:4}
+.flying-answer:hover{transform:scale(1.08);filter:brightness(1.04)}
+.flying-answer.good{background:#effaf5;border-color:var(--green)}
+.flying-answer.bad{background:#fff1f1;border-color:var(--red)}
+.flying-finish{position:absolute;inset:0;z-index:20;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.86);padding:24px}
+.flying-finish-card{background:#fff;border:2px solid var(--line);border-radius:30px;box-shadow:var(--shadow);padding:30px;text-align:center;max-width:520px}
+@media(max-width:900px){.flying-question{font-size:32px;top:86px}.flying-stage{min-height:620px}}
