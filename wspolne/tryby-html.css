@@ -1,0 +1,7 @@
+.html-mode-editor {width:100%;height:510px;border:0;background:#fff;border-radius:12px;display:block}
+.html-mode-game {width:100%;height:580px;border:0;display:block;background:#fff;border-radius:12px}
+#fullscreenContent:has(.html-mode-game){height:calc(100dvh - 125px);min-height:180px;overflow:hidden}
+#fullscreenContent .html-mode-game{height:100%}
+.html-mode-status {margin:8px 0;font-size:18px;color:#666}
+.html-mode-error {padding:24px;color:#E30613;background:#fff;font-size:20px}
+@media(max-width:600px){.html-mode-editor{height:580px}#fullscreenContent:has(.html-mode-game){height:calc(100dvh - 155px)}}

@@ -399,6 +399,10 @@ function ensureSavedFilters(){
       });
     });
   }
+  if(window.DoPotegiModes) window.DoPotegiModes.filters(panel, function(type){
+    savedFilterType=type;
+    window.renderSavedGames();
+  }, savedFilterType);
 }
 function gameMatchesSavedFilters(game){
   if(savedFilterType !== "all"){
@@ -443,6 +447,7 @@ function updateAuthUi(){
 }
 
 function typeInfo(game){
+  if(window.DoPotegiModes?.supports(game)) return window.DoPotegiModes.info(game);
   let typeLabel = "Gra";
   let count = "";
 
@@ -650,6 +655,16 @@ window.loadSavedGame = function(index){
   const game = saved[index];
   if(!game) return;
 
+  if(window.DoPotegiModes?.supports(game)){
+    if(!window.DoPotegiModes.definitions.some(d => "html:" + d.id === game.type)){
+      showToast("Zestaw jest zachowany. Przywróć plik trybu i listę tryby.js, aby go edytować.");
+      return;
+    }
+    markGameAsEdited(game, index);
+    setSelectedClassTags(game.classTags || game.tags || []);
+    window.DoPotegiModes.load(game);
+    return;
+  }
   markGameAsEdited(game, index);
 
   q("gameTitle").value = game.title || "Gra matematyczna";
@@ -788,3 +803,8 @@ document.addEventListener("DOMContentLoaded", function(){
   setLocalGames(getLocalGames());
   window.renderSavedGames();
 });
+
+// Udostępnienie wspólnej obsługi edycji dodatkowym trybom.
+window.clearEditingState = clearEditingState;
+
+window.__doPotegiFirebaseReady = true;

@@ -1,45 +1,69 @@
-GRY DO POTĘGI — JAK WGRAĆ NOWĄ WERSJĘ
+GRY DO POTĘGI — PROSTA OBSŁUGA NOWYCH TRYBÓW
 
-Najwygodniej zrób to na komputerze.
+TERAZ: JEDNORAZOWE WGRANIE NOWEJ PACZKI
 
-1. Pobierz paczkę Gry_Do_Potegi_do_wgrania.zip i rozpakuj ją.
-2. Otwórz https://github.com/dopotegi/gry i zaloguj się na GitHubie.
-3. Na stronie z listą plików wybierz „Add file”, a potem „Upload files”.
-   Jeżeli widzisz tylko przycisk „+”, poszukaj w nim „Upload files”.
-4. Otwórz rozpakowaną paczkę na komputerze. Zaznacz jej ZAWARTOŚĆ:
-   index.html, wersja-poprzednia.html, foldery gry, wspolne i obrazy,
-   a także pliki instrukcji. Przeciągnij je razem do pola przesyłania na GitHubie.
-   Ważne: przeciągnij zawartość paczki, nie ZIP i nie folder otaczający całą paczkę.
-5. Zaczekaj, aż wszystkie pliki się wczytają. Na liście powinny być między innymi:
-   index.html
-   gry/memory.js
-   wspolne/podstawa.js
-   obrazy/obraz-1.png
-   Dotychczasowy index.html zostanie zastąpiony nowym. To jest zamierzone.
-6. Na dole strony kliknij zielony „Commit changes”. Jeśli pokaże się dodatkowe
-   okienko, pozostaw zapis bezpośrednio do obecnej gałęzi i potwierdź.
-7. Poczekaj kilka minut i otwórz https://dopotegi.github.io/gry/.
-   Odśwież stronę. Na komputerze możesz użyć Ctrl+F5.
-8. Otwórz „Moje gry”, uruchom jeden ze swoich zestawów i sprawdź logowanie
-   oraz synchronizację. Jeżeli coś budzi wątpliwości, zrób zdjęcie i prześlij
-   je w tej rozmowie. Nie usuwaj zapisanych zestawów ani danych przeglądarki.
+1. Pobierz Gry_Do_Potegi_proste_dodawanie.zip i rozpakuj na komputerze.
+2. Otwórz https://github.com/dopotegi/gry. Zaloguj się.
+3. Kliknij Add file → Upload files.
+4. Przeciągnij całą ZAWARTOŚĆ rozpakowanej paczki: pliki i foldery.
+   Nie przeciągaj ZIP-a ani folderu otaczającego zawartość.
+   index.html i tryby.js mają być obok siebie, na głównej liście plików.
+5. Poczekaj na wczytanie plików i kliknij Commit changes. Jeśli trzeba,
+   potwierdź zapis bezpośrednio do obecnej gałęzi.
+6. Po kilku minutach otwórz https://dopotegi.github.io/gry/ i odśwież stronę.
+   Jeśli nadal widzisz starą wersję, na komputerze naciśnij Ctrl+F5.
+7. Sprawdź jeden zapisany zestaw oraz logowanie. Nie usuwaj danych przeglądarki.
 
-CO ZMIENI SIĘ DLA CIEBIE
-Strona ma wyglądać i działać jak wcześniej. Gry otrzymały oddzielne pliki.
-Przy następnej poprawce napisz po prostu, co zmieniamy, i podaj link strony.
-Otrzymasz ode mnie konkretne pliki do podmiany. Nie musisz edytować kodu.
-Nowy tryb będzie wymagał dodania jego plików oraz połączenia go z menu.
+Jeśli poprzednia paczka jest już wgrana, wykonaj te same kroki. Pliki o takich
+samych nazwach zostaną zastąpione. Pozostałe mogą zostać.
 
-JAK WRÓCIĆ DO POPRZEDNIEJ WERSJI
-W paczce masz dokładną kopię poprzedniej strony: wersja-poprzednia.html.
-Jeśli trzeba wrócić, skopiuj ten plik na komputerze do osobnego folderu,
-nazwij kopię index.html i wgraj ją na GitHub tak jak w punktach 2–6.
-Pozostałe pliki mogą zostać. Wersja poprzednia używa własnego kodu.
+PÓŹNIEJ: DODANIE NOWEJ GRY
+
+1. Napisz w tej rozmowie, jaki tryb chcesz dodać. Jeśli masz jego HTML,
+   prześlij go albo podaj, gdzie jest. Podaj też link swojej strony gier.
+2. Otrzymasz ode mnie dwa gotowe pliki:
+   - plik nowej gry, np. odkryj-obrazek.html;
+   - aktualny tryby.js.
+3. Na GitHubie wybierz Add file → Upload files.
+4. Wgraj oba pliki na główną listę repozytorium, obok index.html.
+   Zastąpienie starego tryby.js jest zamierzone.
+5. Kliknij Commit changes. Po kilku minutach odśwież stronę.
+
+To wszystko. Nowy tryb będzie widoczny w Kreatorze, a zestawy utworzone w nim
+będą pojawiać się w tych samych „Moich grach”. Tytuł, klasy i przycisk zapisu
+są wspólne. Zapis lokalny działa bez logowania; synchronizacja wymaga zalogowania.
+
+Nie musisz niczego wklejać do index.html. Nie musisz otwierać plików z kodem.
+tryby.js jest listą dodatkowych trybów; za każdym razem przygotuję całą listę,
+zachowując wcześniej dodane pozycje.
+
+POPRAWKA ISTNIEJĄCEJ NOWEJ GRY
+
+Otrzymasz nowy HTML z tą samą nazwą. Wgrasz tylko ten plik.
+Jeżeli zmieni się nazwa pliku lub opis przycisku, dostaniesz również tryby.js.
+Zmiana struktury zapisywanych danych wymaga ode mnie zachowania zgodności ze
+starszymi zestawami. Nie zmieniaj samodzielnie nazw plików.
+
+WAŻNE
+
+HTML nowej gry musi być przygotowany do wspólnej biblioteki. Zwykły samodzielny
+HTML trzeba najpierw dostosować — tym zajmuję się ja. Nowa lista nie przekształca
+automatycznie dowolnej strony HTML w tryb z synchronizacją.
+
+Obecne gry pozostają dostępne. Nie dodano dodatkowej gry do menu. Plik
+przyklad-trybu.html to przykład dla przyszłych prac nad kodem; nie musisz go otwierać.
+
+JAK COFNĄĆ ZMIANĘ
+
+W paczce jest wersja-poprzednia.html — kopia strony sprzed podziału.
+Skopiuj ją na komputerze do osobnego folderu, nazwij kopię index.html i wgraj
+na GitHub. Pozostałe pliki mogą zostać.
 
 SPRAWDZENIE
-Porównano obie wersje w przeglądarce: lista 12 trybów, przełączanie formularzy,
-podglądy i otwieranie/zamykanie pełnego ekranu. Brak nowych błędów JavaScript.
-Usługi zewnętrzne były w tym porównaniu wyłączone. Nie potwierdza to logowania,
-synchronizacji Firebase ani pobierania MathJax online; ich kod i adresy zachowano.
-To podział istniejącego kodu, bez przepisywania mechaniki. Nie usuwa wszystkich
-zależności między grami: wspólne funkcje nadal wymagają sprawdzania po zmianach.
+
+Porównano formularze, podglądy i pełny ekran obecnych 12 trybów ze starą wersją.
+Nowe tryby HTML sprawdzono w przeglądarce: konfigurację, zapis w tej samej bibliotece,
+edytowanie bez kopii, usuwanie tagów, ponowne otwieranie po odświeżeniu, filtry
+oraz wyszukiwanie. Sprawdzono również wspólną ścieżkę zapisu i edycji w chmurze
+z testowym zastępstwem Firebase. Nie wykonano operacji na rzeczywistym koncie.
+Logowanie i rzeczywistą synchronizację trzeba sprawdzić po wgraniu strony.

@@ -1,0 +1,29 @@
+<!doctype html><html lang="pl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Przykład trybu Do Potęgi</title>
+<link href="https://fonts.googleapis.com/css2?family=Khand:wght@400;600;700&display=swap" rel="stylesheet">
+<script>window.MathJax={tex:{inlineMath:[['\\(','\\)']],displayMath:[['\\[','\\]']]},svg:{fontCache:'global'}};</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>*{box-sizing:border-box}body{margin:0;background:white;color:#222;font:20px Khand,Arial,sans-serif}main{padding:16px;max-width:860px;margin:auto}h2{color:#3300CC;margin:0 0 14px}textarea{width:100%;min-height:190px;border:2px solid #ded5ff;border-radius:12px;padding:12px;font:18px Khand,Arial,sans-serif}button{font:inherit;border:0;border-radius:12px;padding:12px 20px;cursor:pointer;background:#3300CC;color:white}button:disabled{opacity:.7;cursor:default}.question{font-size:clamp(26px,5vw,45px);margin:20px 0}.answers{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.answers button{min-height:70px;background:#f0ebff;color:#3300CC;overflow-wrap:anywhere}.correct{background:#d6f5dc!important}.wrong{background:#ffe1e1!important}.note{color:#666;font-size:18px}.error{color:#E30613;min-height:25px}.feedback{min-height:32px;font-size:22px}label{display:block;margin:12px 0}@media(max-height:500px){main{padding:8px}.question{margin:8px 0}.answers button{min-height:45px}}</style></head><body><main id="app">Wczytuję ustawienia…</main>
+<script src="wspolne/tryb-html.js"></script>
+<script>
+(function(){
+const api=window.DoPotegiTryb,app=document.getElementById('app');let current=null,index=0,score=0,finished=false;
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initial={schema:1,source:'7 \\cdot 8 ; 56\n9 \\cdot 6 ; 54\n2^5 ; 32',shuffle:true};
+function parse(source){return source.split('\n').map(x=>x.trim()).filter(Boolean).map((line,i)=>{const p=line.split(';').map(x=>x.trim());if(p.length!==2||!p[0]||!p[1])throw new Error('W wierszu '+(i+1)+' wpisz: przykład ; odpowiedź.');return {question:p[0],answer:p[1]};});}
+function edit(payload){const data=payload||initial;app.innerHTML='<label>Przykłady i odpowiedzi</label><textarea id="source"></textarea><p class="note">Jeden przykład w wierszu: przykład ; odpowiedź. Wzory możesz wpisywać jako 2^5, \\frac{1}{2} lub \\sqrt{9}.</p><label><input id="shuffle" type="checkbox"> Losuj kolejność zadań</label><p id="error" class="error"></p>';
+ document.getElementById('source').value=data.source||'';document.getElementById('shuffle').checked=data.shuffle!==false;
+ function update(){let tasks=[],error='';const source=document.getElementById('source').value;try{tasks=parse(source);if(tasks.length<2)throw new Error('Dodaj przynajmniej dwa przykłady.');if(tasks.length>100)throw new Error('Maksymalnie 100 przykładów.');if(new Set(tasks.map(t=>t.answer)).size<2)throw new Error('Dodaj co najmniej dwie różne odpowiedzi.');}catch(e){error=e.message;}
+ document.getElementById('error').textContent=error;api.changed({schema:1,source,shuffle:document.getElementById('shuffle').checked,tasks},{valid:!error,error,count:tasks.length+' zadań'});}
+ app.addEventListener('input',update);update();
+}
+function shuffled(values){return values.map(x=>({x,r:Math.random()})).sort((a,b)=>a.r-b.r).map(v=>v.x);}
+function math(text){return '\\('+text+'\\)';}
+function draw(){
+ if(index>=current.tasks.length){app.innerHTML='<h2>Gotowe!</h2><p>Wynik: '+score+' / '+current.tasks.length+'</p><button id="again">Zagraj ponownie</button>';document.getElementById('again').onclick=()=>{index=0;score=0;draw();};return;}
+ const task=current.tasks[index];let others=shuffled([...new Set(current.tasks.map(t=>t.answer))].filter(a=>a!==task.answer)).slice(0,3);const options=shuffled([task.answer,...others]);finished=false;
+ app.innerHTML='<h2>'+esc(current.title)+'</h2><p class="note">Zadanie '+(index+1)+' z '+current.tasks.length+'</p><div class="question">'+esc(math(task.question))+'</div><div class="answers"></div><p id="feedback" class="feedback"></p><button id="next" hidden>Dalej</button>';
+ const box=app.querySelector('.answers');options.forEach(answer=>{const button=document.createElement('button');button.innerHTML=esc(math(answer));button.onclick=()=>{if(finished)return;finished=true;const correct=answer===task.answer;if(correct)score++;button.classList.add(correct?'correct':'wrong');box.querySelectorAll('button').forEach(b=>b.disabled=true);document.getElementById('feedback').textContent=correct?'Dobrze!':'Poprawna odpowiedź: '+task.answer;document.getElementById('next').hidden=false;};box.append(button);});document.getElementById('next').onclick=()=>{index++;draw();};api.typeset(app);
+}
+api.register(context=>{if(context.mode==='edit')return edit(context.payload);const data=context.payload||initial;current={...data,title:context.title,tasks:data.tasks||parse(data.source)};if(data.shuffle)current.tasks=shuffled(current.tasks);index=0;score=0;draw();});
+})();
+</script></body></html>
