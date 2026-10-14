@@ -573,5 +573,66 @@ Ile wynosi \frac{1}{2}+\frac{1}{4}? ; \frac{3}{4} ; \frac{2}{6} ; \frac{1}{8} ; 
 <link rel="stylesheet" href="wspolne/tryby-html.css">
 <script src="tryby.js"></script>
 <script src="wspolne/tryby-html.js"></script>
+<style id="full-width-editor-v1">
+.app{max-width:none!important;width:100%!important;padding:20px!important}
+.app>header{position:relative!important;inset:auto!important}
+#creator .creator{display:block!important;grid-template-columns:minmax(0,1fr)!important}
+#creator .creator>.card:first-child{width:100%;max-width:none;min-width:0}
+#creator .creator>.card:has(>#preview){display:none!important}
+#previewBtn{display:none!important}
+#creator .html-mode-editor{height:740px;min-height:420px;width:100%;overflow:hidden}
+#creator .creator-actions{gap:12px;margin:18px 0;flex-wrap:wrap}
+#creator textarea{max-width:100%;box-sizing:border-box}
+#creator #classTagsBox{display:flex!important;flex-wrap:wrap!important;gap:8px!important}
+@media(max-width:650px){.app{padding:10px!important}#creator .creator>.card:first-child{padding:16px}#creator .creator-actions .btn{flex:1 1 150px}}
+</style>
+<script id="full-width-editor-v1-script">
+(function(){
+ const frames=new Map();
+ function attach(frame){
+  if(frames.has(frame))return;
+  const entry={observer:null};frames.set(frame,entry);
+  function connect(){
+   try{
+    entry.observer?.disconnect();const doc=frame.contentDocument;if(!doc?.body)return;
+    const root=doc.getElementById('dartApp')||doc.querySelector('#setupScreen .setup')||doc.body;
+    function fit(){if(!frame.isConnected)return;const measured=Math.ceil(root.getBoundingClientRect().height+40);const height=Math.max(420,Math.min(20000,measured));if(Math.abs(parseFloat(frame.style.height||'0')-height)>2)frame.style.height=height+'px';}
+    entry.observer=new ResizeObserver(()=>requestAnimationFrame(fit));entry.observer.observe(root);fit();
+   }catch(error){/* Tryby zewnętrzne pozostają przy domyślnej wysokości. */}
+  }
+  frame.addEventListener('load',connect);connect();
+ }
+ function refresh(){
+  for(const [frame,entry]of frames)if(!frame.isConnected){entry.observer?.disconnect();frames.delete(frame);}
+  document.querySelectorAll('#htmlModeEditor iframe').forEach(attach);
+ }
+ function install(){
+  // Starsza poprawka Treningu zastępowała całą nakładkę wraz z przyciskiem zamknięcia.
+  // Renderowanie kierujemy do jej obszaru treści.
+  const originalOpen=window.openFullscreen;
+  window.openFullscreen=function(data){
+   if(data?.type!=='training')return originalOpen.apply(this,arguments);
+   currentFullscreenData=JSON.parse(JSON.stringify(data));
+   document.getElementById('fullscreenTitle').textContent=data.title;
+   document.getElementById('fullscreenSubtitle').textContent='Trening';
+   document.getElementById('fullscreenGame').classList.add('active');
+   return window.renderGame(currentFullscreenData,document.getElementById('fullscreenContent'),true);
+  };
+  const original=window.buildGame;
+  window.buildGame=function(fullscreen){
+   if(!fullscreen){document.getElementById('preview')?.replaceChildren();return;}
+   return original.apply(this,arguments);
+  };
+  const run=document.getElementById('fullscreenBtn');if(run)run.textContent='Graj / Generuj';
+  const actions=document.querySelector('#creator .creator-actions');
+  const firstFields=document.querySelector('#creator [id$="Fields"]');
+  if(actions&&firstFields)firstFields.before(actions);
+  refresh();new MutationObserver(refresh).observe(document.getElementById('creator'),{childList:true,subtree:true});
+  document.getElementById('preview')?.replaceChildren();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>setTimeout(install,0));else setTimeout(install,0);
+})();
+</script>
+
 </body>
 </html>
