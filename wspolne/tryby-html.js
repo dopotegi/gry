@@ -13,9 +13,19 @@ const definitions=[];
 for(const item of window.DO_POTEGI_TRYBY||[]){
  try{
   if(!item||!/^[-a-zA-Z0-9_]+$/.test(item.id)||!String(item.name||'').trim()||definitions.some(d=>d.id===item.id))throw new Error('Nieprawidłowy wpis na liście trybów.');
-  definitions.push({id:item.id,name:String(item.name),file:cleanFile(item.file),description:String(item.description||'Przygotuj zadania i uruchom grę.')});
+  definitions.push({id:item.id,name:String(item.name),file:cleanFile(item.file),description:String(item.description||'Przygotuj zadania i uruchom grę.'),icon:String(item.icon||item.id)});
  }catch(e){console.error(e.message);}
 }
+
+function modeIcon(def){
+ const shapes={
+  dart:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
+  'odkryj-obrazek':'<rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
+  gamepad:'<path d="M7 7h10c2 0 3 2 3.5 4l1 6c.3 2-2 3-3.2 1.5L16 16H8l-2.3 2.5C4.5 20 2.2 19 2.5 17l1-6C4 9 5 7 7 7Z"/><path d="M6 11h5M8.5 8.5v5"/><circle cx="16" cy="11" r=".7" fill="currentColor"/><circle cx="18" cy="13" r=".7" fill="currentColor"/>'
+ };
+ return '<svg viewBox="0 0 24 24" width="36" height="36" aria-hidden="true" focusable="false" style="display:block;max-width:100%;color:#fff" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+(shapes[def.icon]||shapes[def.id]||shapes.gamepad)+'</svg>';
+}
+
 function definition(type){return definitions.find(d=>prefix+d.id===type);}
 function supports(game){return !!game&&typeof game.type==='string'&&game.type.startsWith(prefix);}
 function info(game){return {typeLabel:definition(game.type)?.name||game.htmlMode?.name||'Dodatkowy tryb',count:game.modeCount||''};}
@@ -84,7 +94,7 @@ function install(){
  for(const def of definitions){
   const option=document.createElement('option');option.value=prefix+def.id;option.textContent=def.name;q('gameType').append(option);
   const tile=document.createElement('div');tile.className='game-type';tile.tabIndex=0;tile.setAttribute('role','button');
-  const icon=document.createElement('div');icon.className='icon';icon.textContent='▣';const title=document.createElement('h2');title.textContent=def.name;const description=document.createElement('p');description.textContent=def.description;tile.append(icon,title,description);
+  const icon=document.createElement('div');icon.className='icon';icon.innerHTML=modeIcon(def);const title=document.createElement('h2');title.textContent=def.name;const description=document.createElement('p');description.textContent=def.description;tile.append(icon,title,description);
   const launch=()=>{fallbackEditing=null;if(typeof window.clearEditingState==='function')window.clearEditingState();states.delete(def.id);forget(editorFrame);editorFrame=null;q('gameTitle').value=def.name;window.selectGameType(prefix+def.id);};
   tile.addEventListener('click',launch);tile.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();launch();}});q('start').querySelector('.game-type-grid').append(tile);
  }
