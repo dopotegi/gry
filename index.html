@@ -575,7 +575,8 @@ Ile wynosi \frac{1}{2}+\frac{1}{4}? ; \frac{3}{4} ; \frac{2}{6} ; \frac{1}{8} ; 
 <script src="wspolne/tryby-html.js"></script>
 <style id="full-width-editor-v1">
 .app{max-width:none!important;width:100%!important;padding:20px!important}
-.app>header{position:relative!important;inset:auto!important}
+.app>header{position:sticky!important;top:0!important;bottom:auto!important;z-index:40!important;box-shadow:0 8px 20px rgba(51,0,204,.10)}
+html{scroll-padding-top:170px}
 #creator .creator{display:block!important;grid-template-columns:minmax(0,1fr)!important}
 #creator .creator>.card:first-child{width:100%;max-width:none;min-width:0}
 #creator .creator>.card:has(>#preview){display:none!important}
