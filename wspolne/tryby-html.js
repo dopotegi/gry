@@ -19,6 +19,7 @@ for(const item of window.DO_POTEGI_TRYBY||[]){
 
 function modeIcon(def){
  const shapes={
+  'os-liczbowa':'<path d="M2 11h20M18.5 7.5 22 11l-3.5 3.5M5 7v8M10 8v6M15 7v8"/><text x="5" y="22" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif" font-size="6">0</text><text x="15" y="22" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif" font-size="6">1</text>', 
   dart:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
   'odkryj-obrazek':'<rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
   gamepad:'<path d="M7 7h10c2 0 3 2 3.5 4l1 6c.3 2-2 3-3.2 1.5L16 16H8l-2.3 2.5C4.5 20 2.2 19 2.5 17l1-6C4 9 5 7 7 7Z"/><path d="M6 11h5M8.5 8.5v5"/><circle cx="16" cy="11" r=".7" fill="currentColor"/><circle cx="18" cy="13" r=".7" fill="currentColor"/>'
