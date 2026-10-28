@@ -17,5 +17,11 @@ window.DO_POTEGI_TRYBY = [
     "name": "Oś liczbowa",
     "file": "Gra_os_liczbowa_Do_Potegi.html",
     "description": "Zaznaczaj i odczytuj liczby na osiach z różnymi podziałkami."
+  },
+  {
+    "id": "centrum-misji",
+    "name": "Centrum Misji",
+    "file": "centrum_misji.html",
+    "description": "Interaktywny finał papierowych stacji: kolejność, czas, życia i nagroda."
   }
 ];

@@ -595,16 +595,23 @@ html{scroll-padding-top:170px}
   const entry={observer:null};frames.set(frame,entry);
   function connect(){
    try{
-    entry.observer?.disconnect();const doc=frame.contentDocument;if(!doc?.body)return;
+    entry.observer?.disconnect();entry.cleanup?.();const doc=frame.contentDocument;if(!doc?.body||doc.URL==='about:blank'||doc.readyState!=='complete')return;
     const root=doc.getElementById('dartApp')||doc.querySelector('#setupScreen .setup')||doc.body;
     function fit(){if(!frame.isConnected)return;const measured=Math.ceil(root.getBoundingClientRect().height+40);const height=Math.max(420,Math.min(20000,measured));if(Math.abs(parseFloat(frame.style.height||'0')-height)>2)frame.style.height=height+'px';}
-    entry.observer=new ResizeObserver(()=>requestAnimationFrame(fit));entry.observer.observe(root);fit();
+    if(root.dataset.autoheight==='events'){
+     const schedule=()=>{clearTimeout(entry.resizeTimer);entry.resizeTimer=setTimeout(fit,30);};
+     entry.observer=new MutationObserver(schedule);entry.observer.observe(root,{childList:true,subtree:true,attributes:true,characterData:true});
+     doc.addEventListener('input',schedule);doc.addEventListener('change',schedule);doc.addEventListener('load',schedule,true);doc.defaultView.addEventListener('resize',schedule);
+     entry.cleanup=()=>{clearTimeout(entry.resizeTimer);doc.removeEventListener('input',schedule);doc.removeEventListener('change',schedule);doc.removeEventListener('load',schedule,true);doc.defaultView?.removeEventListener('resize',schedule);};
+     doc.fonts?.ready.then(schedule);
+    }else{entry.observer=new ResizeObserver(()=>requestAnimationFrame(fit));entry.observer.observe(root);}
+    fit();
    }catch(error){/* Tryby zewnętrzne pozostają przy domyślnej wysokości. */}
   }
   frame.addEventListener('load',connect);connect();
  }
  function refresh(){
-  for(const [frame,entry]of frames)if(!frame.isConnected){entry.observer?.disconnect();frames.delete(frame);}
+  for(const [frame,entry]of frames)if(!frame.isConnected){entry.observer?.disconnect();entry.cleanup?.();frames.delete(frame);}
   document.querySelectorAll('#htmlModeEditor iframe').forEach(attach);
  }
  function install(){

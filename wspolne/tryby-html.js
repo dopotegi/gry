@@ -19,6 +19,7 @@ for(const item of window.DO_POTEGI_TRYBY||[]){
 
 function modeIcon(def){
  const shapes={
+  'centrum-misji':'<path d="M5 3h14v18H5zM9 3v3h6V3M8 10l1.5 1.5L12 9M8 16l1.5 1.5L12 15M14 11h2M14 17h2"/>', 
   'os-liczbowa':'<path d="M2 11h20M18.5 7.5 22 11l-3.5 3.5M5 7v8M10 8v6M15 7v8"/><text x="5" y="22" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif" font-size="6">0</text><text x="15" y="22" text-anchor="middle" fill="currentColor" stroke="none" font-family="Arial,sans-serif" font-size="6">1</text>', 
   dart:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor" stroke="none"/>',
   'odkryj-obrazek':'<rect x="3" y="3" width="18" height="18" rx="1"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>',
