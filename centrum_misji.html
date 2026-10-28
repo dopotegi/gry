@@ -89,21 +89,21 @@
 .game.theme-space::after{background:none!important}
 </style>
 <style id="mission-library-layout">
-body.missionEmbedded #appHeader,body.missionEmbedded #titleField,body.missionEmbedded #importBtn,body.missionEmbedded #exportBtn,body.missionEmbedded #copyLinkBtn,body.missionEmbedded #startBtn,body.missionEmbedded #teacherBtn{display:none!important}
+body.missionEmbedded #appHeader,body.missionEmbedded #importBtn,body.missionEmbedded #exportBtn,body.missionEmbedded #copyLinkBtn,body.missionEmbedded #startBtn,body.missionEmbedded #unusedTeacherBtn{display:none!important}
 body.missionEmbedded #editor{max-width:none;padding:10px 16px 20px}
-body.missionEmbedded #themeField{grid-column:1/-1}
+body.missionEmbedded #themeField{grid-column:auto}
 body.missionEmbedded .missionValidation{color:#c12525;font-size:14px;line-height:1.4;min-height:20px;margin:8px 0}
 html:has(body.missionEmbedded){overflow:hidden}
 body.missionEmbedded{overflow:hidden}
 body.missionEmbeddedPlay{overflow:hidden}
 body.missionEmbeddedPlay .game-header{min-height:80px}
 </style></head><body><header id="appHeader"><img alt="Do Potęgi" id="logoHead"/><div class="tag">CENTRUM MISJI · panel nauczyciela</div></header><div id="setupScreen"><main id="editor" class="setup" data-autoheight="events"><div class="top"><div><h1>Centrum Misji</h1><p>Przygotuj interaktywny finał do papierowych stacji zadaniowych.</p></div><div class="actions"><button class="secondary" id="importBtn">Wczytaj misję</button><button class="secondary" id="exportBtn">Zapisz misję</button></div></div>
-<section class="panel"><h2>1. Scenariusz</h2><div class="grid"><div class="field" id="titleField"><label for="title">Tytuł misji</label><input id="title" value="Tajemnica skarbca"/></div><div class="field" id="themeField"><label for="theme">Motyw graficzny</label><select id="theme"><option value="vault">Piracki</option><option value="space">Kosmos</option><option value="fantasy">Fantasy</option><option value="detective">Detektywistyczny</option><option value="lab">Laboratorium</option><option value="arcade">Dżungla</option></select></div></div><div class="field" style="margin-top:16px"><label for="story">Wprowadzenie dla ucznia</label><textarea id="story">Rozwiąż zadania na papierowych stacjach. Prawidłowa kolejność otworzy skarbiec!</textarea></div></section>
+<section class="panel"><h2>1. Scenariusz</h2><div class="grid"><div class="field" id="titleField"><label for="title">Tytuł misji widoczny dla ucznia</label><input id="title" value="Tajemnica skarbca"/></div><div class="field" id="themeField"><label for="theme">Motyw graficzny</label><select id="theme"><option value="vault">Piracki</option><option value="space">Kosmos</option><option value="fantasy">Fantasy</option><option value="detective">Detektywistyczny</option><option value="lab">Laboratorium</option><option value="arcade">Dżungla</option></select></div></div><div class="field" style="margin-top:16px"><label for="story">Wprowadzenie dla ucznia</label><textarea id="story">Rozwiąż zadania na papierowych stacjach. Prawidłowa kolejność otworzy skarbiec!</textarea></div></section>
 <section class="panel"><h2>Wygląd ekranu ucznia</h2><div class="grid"><div class="field"><label for="fontSize">Wielkość tekstu</label><select id="fontSize"><option value="normal">Standardowa</option><option value="large">Większa</option><option value="xlarge">Bardzo duża</option></select></div><div class="field"><label for="fontWeight">Grubość czcionki</label><select id="fontWeight"><option value="500">Standardowa</option><option selected="" value="600">Wyraźniejsza</option><option value="700">Pogrubiona</option></select></div></div><p class="hint">Ustawienia dotyczą tekstu na ekranie ucznia. Nagłówki i przyciski pozostają czytelne.</p></section><section class="panel"><h2>2. Kolejność stacji i tryb</h2><div class="grid"><div class="field"><label for="sequence">Prawidłowa kolejność numerów stacji</label><input id="sequence" placeholder="np. 7, 12, 2, 10, 5, 9, 1, 6, 11, 3, 8, 4" value="7, 12, 2, 10, 5, 9, 1, 6, 11, 3, 8, 4"/><small>Uczeń zaczyna na pierwszej stacji podanej w kluczu. Wpisuje kolejne numery, a numer stacji początkowej dopiero na końcu. Oddziel numery przecinkami lub spacjami.</small></div><div class="field"><label for="mode">Tryb rozgrywki</label><select id="mode"><option value="final">Finałowy – cały kod na końcu</option><option value="step">Etapowy – numer po każdej stacji</option></select></div></div><p class="hint">W trybie finałowym błędna próba oznacza niepoprawną całą sekwencję. W trybie etapowym sprawdzany jest kolejny numer.</p></section>
 <section class="panel"><h2>3. Wyzwanie</h2><div class="grid"><div><label class="check"><input id="timerOn" type="checkbox"/> Włącz limit czasu</label><div class="field"><label for="minutes">Czas w minutach</label><input id="minutes" max="999" min="1" type="number" value="20"/></div></div><div><label class="check"><input checked="" id="livesOn" type="checkbox"/> Włącz system żyć</label><div class="field"><label for="lives">Liczba żyć</label><input id="lives" max="99" min="1" type="number" value="3"/></div></div></div><hr class="divider"/><div class="field"><label for="failBehavior">Co dzieje się po utracie wszystkich żyć lub upływie czasu?</label><select id="failBehavior"><option value="teacher">Koniec misji – ponowny start przez nauczyciela</option><option value="restart">Koniec misji – uczeń może rozpocząć ponownie</option><option value="continue">Kontynuacja – można próbować dalej</option></select></div><label class="check"><input checked="" id="showProgress" type="checkbox"/> Pokaż postęp w trybie etapowym</label></section>
 <section class="panel"><h2>4. Nagroda i zakończenie</h2><div class="grid"><div class="field"><label for="rewardType">Rodzaj nagrody</label><select id="rewardType"><option value="code">Kod do sejfu</option><option value="text">Własna wiadomość</option><option value="points">Punkty</option></select></div><div class="field"><label for="reward">Kod, wiadomość lub liczba punktów</label><input id="reward" value="4826"/></div></div><div class="field" style="margin-top:16px"><label for="congrats">Tekst po ukończeniu</label><textarea id="congrats">Gratulacje! Misja zakończona sukcesem.</textarea></div></section>
 <section class="panel"><div class="actions"><button id="startBtn">Uruchom ekran ucznia</button><button class="secondary" id="copyLinkBtn">Kopiuj link do misji</button><button class="secondary" id="resetBtn">Przywróć ustawienia przykładowe</button></div><p class="hint">Misja zapisuje się automatycznie w tej przeglądarce. Plik JSON pozwala przenosić konfiguracje między urządzeniami. Link zawiera ustawienia, w tym prawidłową sekwencję i nagrodę — nie jest zabezpieczeniem przed podglądem.</p></section><input accept=".json,application/json" hidden="" id="fileInput" type="file"/></main></div>
-<div class="game theme-vault hidden" id="game"><div class="game-header"><img alt="Do Potęgi" class="game-logo" id="logoGame"/><button class="secondary no-print teacher-toggle" id="teacherBtn" title="Wróć do ustawień">⚙ Panel nauczyciela</button></div><div class="game-wrap"><div id="gameContent"></div></div></div>
+<div class="game theme-vault hidden" id="game"><div class="game-header"><img alt="Do Potęgi" class="game-logo" id="logoGame"/><button class="secondary no-print teacher-toggle" id="teacherBtn" title="Wróć do ustawień">⚙ Panel nauczyciela</button><button class="secondary teacher-toggle" id="missionFullscreenBtn" type="button">Pełny ekran</button><button class="secondary teacher-toggle" id="missionRestartBtn" type="button">Zagraj ponownie</button><button class="secondary teacher-toggle" id="missionCloseBtn" type="button">Zamknij</button></div><div class="game-wrap"><div id="gameContent"></div></div></div>
 <script>
 const LOGO='grafiki_misji/tlo_16.png';document.getElementById('logoHead').src=LOGO;document.getElementById('logoGame').src=LOGO;
 const inGameLibrary=window.parent!==window;
@@ -165,7 +165,7 @@ if(!inGameLibrary){try{let params=new URLSearchParams(location.search),shared=pa
 let missionLibraryContext=null;
 function publishMission(){
  if(!missionLibraryContext||missionLibraryContext.mode!=='edit')return;
- const settings=collect();delete settings.title;
+ const settings=collect();
  let count=0,error='';
  try{count=validate(settings).length;}catch(e){error=e.message;}
  document.getElementById('missionLibraryError').textContent=error;
@@ -177,10 +177,10 @@ if(inGameLibrary&&window.DoPotegiTryb){
   stopClock();missionLibraryContext=context;
   document.body.classList.add('missionEmbedded');document.body.classList.toggle('missionEmbeddedPlay',context.mode==='play');
   if(context.payload&&context.payload.schema!==1){window.DoPotegiTryb.toast('Ta wersja ustawień misji wymaga nowszego pliku Centrum Misji.');return;}
-  const settings={...defaults,...(context.payload?.settings||{}),title:context.title||'Centrum Misji'};
+  const settings={...defaults,...(context.payload?.settings||{}),title:context.payload?.settings?.title||context.title||defaults.title};
   apply(settings);
   const hint=document.querySelector('#resetBtn').closest('.panel').querySelector('.hint');
-  hint.textContent='Nazwę, klasy i zapis ustawiasz nad formularzem. Kliknij „Zapisz grę”, aby dodać misję do „Moich gier”.';
+  hint.textContent='Nazwę zapisu i klasy ustawiasz nad formularzem. Tytuł dla ucznia wpisz w sekcji „Scenariusz”. Kliknij „Zapisz grę”, aby dodać misję do „Moich gier”.';
   if(context.mode==='edit'){
    $('game').classList.add('hidden');$('editor').classList.remove('hidden');publishMission();
   }else{
@@ -191,4 +191,22 @@ if(inGameLibrary&&window.DoPotegiTryb){
 }
 </script>
 
+<style>
+.game-header{gap:8px;flex-wrap:wrap;align-items:center;padding-bottom:12px}
+.game-header .game-logo{margin-right:auto}
+.game-header .teacher-toggle{background:var(--surface)!important;color:var(--ink)!important;border-color:var(--accent)!important;border-radius:12px;min-width:0}
+body:not(.missionEmbeddedPlay) #missionCloseBtn{display:none}
+@media(max-width:650px){.game-header .game-logo{width:60px;height:48px}.game-header .teacher-toggle{font-size:11px;padding:7px}}
+</style>
+<script>
+const missionSend=action=>window.parent.postMessage({channel:'do-potegi-html-v1',action},location.origin);
+$('teacherBtn').onclick=()=>{if(inGameLibrary){missionSend('mission-close');}else{stopClock();$('game').classList.add('hidden');$('editor').classList.remove('hidden');$('appHeader').classList.remove('hidden');}};
+$('missionCloseBtn').onclick=()=>missionSend('mission-close');
+$('missionRestartBtn').onclick=()=>{stopClock();launch(config);};
+$('missionFullscreenBtn').onclick=async()=>{
+ try{if(document.fullscreenElement){await document.exitFullscreen();}else if($('game').requestFullscreen){await $('game').requestFullscreen();}else{DoPotegiTryb.toast('Ta przeglądarka nie udostępnia pełnego ekranu. Gra wypełnia dostępne okno.');}}
+ catch(e){DoPotegiTryb.toast('Nie udało się włączyć pełnego ekranu. Możesz użyć klawisza F11 na komputerze.');}
+};
+document.addEventListener('fullscreenchange',()=>{$('missionFullscreenBtn').textContent=document.fullscreenElement?'Wyjdź z pełnego ekranu':'Pełny ekran';});
+</script>
 </body></html>
