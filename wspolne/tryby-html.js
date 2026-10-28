@@ -41,6 +41,7 @@ function mount(container,def,context,editor){
  frame.src=new URL(def.file,document.baseURI).href;container.append(frame);return frame;
 }
 function showEditor(){
+ const titleLabel=document.querySelector('label[for="gameTitle"]');if(titleLabel)titleLabel.textContent=q('gameType').value==='html:centrum-misji'?'Nazwa zapisu w Moich grach':'Tytuł gry';
  const type=q('gameType').value, def=definition(type), active=!!def;
  q('htmlModeFields').style.display=active?'block':'none';
  if(!active){forget(editorFrame);editorFrame=null;return;}
@@ -58,6 +59,7 @@ function getData(){
  return {type,title:q('gameTitle').value.trim()||def.name,htmlMode:{id:def.id,name:def.name,file:def.file,version:1},modePayload:copy(state.payload),modeCount:state.count||'',classTags:Array.from(document.querySelectorAll('#classTagsBox input:checked')).map(el=>el.value)};
 }
 function render(game,container,fullscreen){
+ q('fullscreenGame').classList.toggle('mission-immersive',!!fullscreen&&game.type==='html:centrum-misji');
  const def=definition(game.type);
  for(const [frame,entry] of frames)if(!entry.editor&&(!frame.isConnected||container.contains(frame)))forget(frame);
  if(!def){container.replaceChildren();const msg=document.createElement('p');msg.className='html-mode-error';msg.textContent='Ten zestaw jest zapisany, ale brakuje jego trybu. Wgraj plik gry oraz aktualną listę tryby.js.';container.append(msg);return;}
@@ -87,10 +89,20 @@ window.addEventListener('message',event=>{
  }else if(msg.action==='changed'&&entry.editor&&frame===editorFrame){
   try{const firstValid=!states.get(entry.def.id)?.valid;const payload=copy(msg.payload);if(!payload||typeof payload!=='object')throw new Error('Nieprawidłowe dane gry.');states.set(entry.def.id,{payload,valid:msg.valid===true,error:String(msg.error||''),count:String(msg.count||'')});if(firstValid&&msg.valid===true)window.buildGame(false);}
   catch(e){states.set(entry.def.id,{payload:null,valid:false,error:e.message,count:''});}
+ }else if(msg.action==='mission-close'&&!entry.editor&&entry.def.id==='centrum-misji'){
+  if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});
+  q('closeFullBtn').click();
  }else if(msg.action==='toast')showToast(String(msg.message||''));
 });
 function install(){
  if(installed)return;installed=true;
+ const immersiveStyle=document.createElement('style');immersiveStyle.textContent=`
+ #fullscreenGame.mission-immersive{padding:0!important}
+ #fullscreenGame.mission-immersive .fullscreen-top{display:none!important}
+ #fullscreenGame.mission-immersive .fullscreen-inner{width:100%!important;max-width:none!important;height:100dvh!important;margin:0!important;padding:0!important;border:0!important;border-radius:0!important;overflow:hidden!important}
+ #fullscreenGame.mission-immersive #fullscreenContent{height:100%!important;padding:0!important;margin:0!important;overflow:hidden!important}
+ #fullscreenGame.mission-immersive iframe.html-mode-game{display:block;width:100%!important;height:100%!important;min-height:0!important;border:0!important;border-radius:0!important}
+ `;document.head.append(immersiveStyle);
  const field=document.createElement('div');field.id='htmlModeFields';field.style.display='none';field.innerHTML='<p>Ustawienia i zadania tego trybu:</p><div id="htmlModeEditor"></div>';
  q('gameType').parentElement.insertBefore(field,q('previewBtn').parentElement);
  for(const def of definitions){
@@ -103,7 +115,7 @@ function install(){
  const oldGet=window.getCurrentGameData;window.getCurrentGameData=function(){if(definition(q('gameType').value))return getData();return oldGet.apply(this,arguments);};
  const oldChange=window.onGameTypeChange;window.onGameTypeChange=function(){const result=oldChange.apply(this,arguments);showEditor();return result;};
  const oldBuild=window.buildGame;window.buildGame=function(fullscreen){if(definition(q('gameType').value)&&!frames.get(editorFrame)?.ready)return;return oldBuild.apply(this,arguments);};
- const oldRender=window.renderGame;window.renderGame=function(game,container,fullscreen){if(supports(game))return render(game,container,fullscreen);return oldRender.apply(this,arguments);};
+ const oldRender=window.renderGame;window.renderGame=function(game,container,fullscreen){if(!supports(game))q('fullscreenGame').classList.remove('mission-immersive');if(supports(game))return render(game,container,fullscreen);return oldRender.apply(this,arguments);};
  q('closeFullBtn').addEventListener('click',()=>{for(const [frame,entry]of frames)if(!entry.editor&&q('fullscreenContent').contains(frame))forget(frame);});
  const oldClose=window.closeFullscreen;window.closeFullscreen=function(){for(const [frame,entry]of frames)if(!entry.editor&&q('fullscreenContent').contains(frame))forget(frame);return oldClose.apply(this,arguments);};
  // Modules can finish after this script. Firebase uses explicit integration points.
