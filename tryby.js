@@ -23,5 +23,11 @@ window.DO_POTEGI_TRYBY = [
     "name": "Centrum Misji",
     "file": "centrum_misji.html",
     "description": "Interaktywny finał papierowych stacji: kolejność, czas, życia i nagroda."
+  },
+  {
+    "id": "matematyczne-frytki",
+    "name": "Matematyczne Frytki",
+    "file": "matematyczne_frytki.html",
+    "description": "Rozwiązuj zadania, losuj fizyczne frytki i zdobywaj dziurki. Ryzyko, Misja lub Pojedynek."
   }
 ];
