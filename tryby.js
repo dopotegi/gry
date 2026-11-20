@@ -29,5 +29,11 @@ window.DO_POTEGI_TRYBY = [
     "name": "Matematyczne Frytki",
     "file": "matematyczne_frytki.html",
     "description": "Rozwiązuj zadania, losuj fizyczne frytki i zdobywaj dziurki. Ryzyko, Misja lub Pojedynek."
+  },
+  {
+    "id": "gra-w-ciemno",
+    "name": "Gra w ciemno",
+    "file": "gra_w_ciemno.html",
+    "description": "Zapisz zestaw pytań i uruchom sesję na żywo z kopertami oraz osobnym ekranem ucznia."
   }
 ];
