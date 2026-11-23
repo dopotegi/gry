@@ -86,6 +86,12 @@ window.addEventListener('message',event=>{
  const [frame,entry]=match,msg=event.data;
  if(msg.action==='ready'){
   entry.ready=true;clearTimeout(entry.timeout);entry.status.remove();frame.contentWindow.postMessage({channel,action:'init',context:copy(entry.context)},location.origin);
+ }else if(msg.action==='launch'&&entry.editor&&frame===editorFrame&&entry.def.id==='gra-w-ciemno'){
+  // Własny przycisk „Utwórz sesję” w edytorze Gry w ciemno.
+  // Korzysta ze zwykłego mechanizmu Graj/Generuj, bez zmiany pozostałych gier.
+  const state=states.get(entry.def.id);
+  if(!state?.valid){showToast(state?.error||'Sprawdź ustawienia gry.');return;}
+  q('fullscreenBtn').click();
  }else if(msg.action==='changed'&&entry.editor&&frame===editorFrame){
   try{const firstValid=!states.get(entry.def.id)?.valid;const payload=copy(msg.payload);if(!payload||typeof payload!=='object')throw new Error('Nieprawidłowe dane gry.');states.set(entry.def.id,{payload,valid:msg.valid===true,error:String(msg.error||''),count:String(msg.count||'')});if(firstValid&&msg.valid===true)window.buildGame(false);}
   catch(e){states.set(entry.def.id,{payload:null,valid:false,error:e.message,count:''});}

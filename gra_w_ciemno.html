@@ -80,7 +80,7 @@ button.math-toggle{background:#eee9ff!important;color:#26038a!important;border:2
 40</textarea></label><button id="create">Utwórz sesję</button><p class="small">Pula kopert jest losowana przy tworzeniu gry. Nauczyciel widzi jej zawartość, uczeń dopiero po finale.</p></details></section></div><section id="sessionBox" hidden><h2>Sesja <span id="code"></span></h2><div class="join-share"><div class="join-share-text"><strong>Link do dołączenia dla ucznia</strong><a id="studentLink" target="_blank" rel="noopener"></a><div class="join-share-buttons"><button type="button" id="copyStudentLink">Kopiuj link ucznia</button><button type="button" id="shareStudentLink" class="secondary" hidden>Udostępnij</button></div><p id="copyStudentFeedback" class="small" role="status"></p></div><div id="studentQr" class="student-qr" hidden><div id="studentQrCode"></div><span class="small">Zeskanuj aparatem tabletu lub telefonu</span></div></div><p class="small">Uczeń wybiera wszystkie koperty na początku. Może dołączyć z tego samego urządzenia lub konta przeglądarki, bez trybu incognito.</p><div id="teacherEnvs" class="grid"></div><p id="selectionInfo"></p><button id="begin" disabled>Rozpocznij rundy</button></section><section id="teacherRound" hidden><h2>Sterowanie rundą</h2><p id="roundInfo"></p><div id="teacherQuestion" class="secret"></div><p id="teacherSecret" class="small"></p><button id="award">Przyznaj kopertę</button><button id="destroy" class="secondary">Zniszcz kopertę</button><button id="keep" class="secondary">Pozostaw bez zmian</button><button id="next">Następna runda</button><div id="answerInfo" class="note"></div></section><section id="finalBox" hidden><details open><summary style="font-size:1.25rem;font-weight:700;cursor:pointer;padding:8px 0">Przegląd wszystkich odpowiedzi i decyzji</summary><p>Sprawdź odpowiedzi i rozstrzygnij koperty. Następnie możesz przeprowadzić negocjacje i odkryć wygraną.</p><p class="small">Możesz zmienić wynik dowolnej rundy przed zakończeniem gry. Zmiany są widoczne dla ucznia.</p><h3>Koperty do rozstrzygnięcia</h3><div id="pendingEnvs"></div><div id="reviewAnswers"></div></details></section><section id="negotiationBox" hidden><details open><summary style="font-size:1.25rem;font-weight:700;cursor:pointer;padding:8px 0">Negocjacje</summary><p class="small">Oferty przygotowuje i zatwierdza nauczyciel. Zawartość kopert pozostaje tajna dla ucznia.</p><div id="negotiationEnvs" class="grid"></div><div class="toolbar"><label>Rodzaj propozycji<select id="offerType"><option value="cash">Gotówka za koperty</option><option value="swap">Wymiana kopert</option><option value="cashswap">Gotówka i wymiana</option><option value="guarantee">Wymiana z gwarancją nieujemnej zawartości</option></select></label><label>Koperty oddawane przez ucznia (numery, przecinki)<input id="offerGive" placeholder="np. 1, 3"></label><label>Koperty otrzymywane (numery)<input id="offerGet" placeholder="np. 7"></label><label>Gotówka (zł; kwota ujemna = uczeń płaci)<input id="offerCash" type="number" value="0"></label></div><button id="suggestOffer" class="secondary">Zaproponuj losową ofertę</button><button id="sendOffer">Wyślij ofertę uczniowi</button><button id="cancelOffer" class="secondary">Anuluj ofertę</button><div class="neg-controls"><button id="teacherAcceptProposal" hidden>Przyjmij propozycję ucznia</button><button id="teacherRejectProposal" class="secondary" hidden>Odrzuć propozycję ucznia</button><button id="teacherEndNeg" class="secondary">Zakończ negocjacje</button><button id="teacherRejectEnd" class="secondary" hidden>Odrzuć zakończenie negocjacji</button><span id="teacherEndInfo" class="small"></span></div><button id="settleOffer" hidden>Zrealizuj zaakceptowaną ofertę</button><p id="offerStatus"></p><div id="offerError" role="alert" style="color:#9b1234;white-space:pre-line;font-weight:600" hidden></div></details></section><section id="revealBox" hidden><h2>Otwarcie kopert</h2><p class="small">Po przeglądzie odpowiedzi i zakończeniu negocjacji możesz odkryć koperty oraz podliczyć wygraną.</p><label>Przyznane punkty (możesz zmienić przed otwarciem kopert)<input id="awardedPoints" type="number" min="0" max="100" value="0"></label><p id="pointsHint" class="small"></p><button id="finishGame">Odkryj koperty i podlicz wygraną</button><div id="pointsCorrection" hidden><label>Skoryguj przyznane punkty<input id="correctedPoints" type="number" min="0" max="100"></label><button id="savePoints" class="secondary">Zapisz korektę punktów</button></div><div id="finalSummary"></div></section></div></div><div id="student"><button type="button" class="secondary role-back" id="backStudent">← Wróć do wyboru ekranu</button><section id="joinBox"><h2>Dołącz do gry</h2><label>Kod sesji<input id="joinCode" maxlength="10" placeholder="np. AB12CD34EF"></label><button id="join">Dołącz</button></section><div id="studentApp" hidden><section><h2>Twoja rozgrywka <span id="studentCode" class="tag"></span></h2><p id="studentPhase"></p><div id="studentEnvs" class="grid"></div><p id="chosenCount"></p><button id="confirm">Zatwierdź wybór kopert</button></section><section id="studentRound" hidden><h2>Aktualne zadanie</h2><p id="studentRoundInfo"></p><div id="question"></div><div id="answerBox" hidden><div class="answer-input-line"><label>Twoja odpowiedź<input id="studentAnswer"></label><div class="answer-inline-preview"><div class="small">Podgląd zapisu matematycznego:</div><div id="studentMathPreview" class="answer-preview" aria-live="polite">—</div></div></div><button id="submitAnswer">Wyślij odpowiedź</button><p id="studentAnswerStatus"></p></div></section><section id="studentOffer" hidden><h2>Propozycja negocjacji</h2><p id="offerText"></p><button id="acceptOffer">Przyjmij</button><button id="rejectOffer" class="secondary">Odrzuć</button></section><section id="studentNeg" hidden><h2>Twoja propozycja negocjacji</h2><p class="small">Możesz zaproponować wymianę lub gotówkę. Nauczyciel zdecyduje, czy przyjąć ofertę.</p><label>Koperty, które oddajesz<input id="studentGive" placeholder="np. 1, 3"></label><label>Koperty, które chcesz otrzymać<input id="studentGet" placeholder="np. 7"></label><label>Gotówka, którą chcesz otrzymać (zł)<input id="studentCash" type="number" min="0" value="0"></label><label>Gotówka, którą chcesz oddać za kopertę (zł)<input id="studentCashPay" type="number" min="0" value="0"></label><p id="studentCashBalance" class="note" aria-live="polite"></p><div><button id="studentSendProposal">Wyślij propozycję nauczycielowi</button><button id="studentEndNeg" class="secondary">Zakończ negocjacje</button><button id="studentRejectEnd" class="secondary" hidden>Odrzuć zakończenie negocjacji</button></div><p id="studentNegStatus"></p><div id="studentNegError" role="alert" hidden></div></section><section id="studentFinal" hidden><h2>Wynik gry</h2><div id="studentFinalSummary"></div><h3>Wygrane koperty</h3><div id="studentWonEnvs" class="grid"></div></section></div></div></main><style>
 body.ciemnoEmbedded>header,body.ciemnoEmbedded #entry,body.ciemnoEmbedded #backTeacher{display:none!important}
 body.ciemnoEmbedded main{max-width:none;padding:10px 16px;margin:0}
-body.ciemnoLibraryEdit #loginBox,body.ciemnoLibraryEdit #create,body.ciemnoLibraryEdit #student,body.ciemnoLibraryEdit #teacherApp>section{display:none!important}
+body.ciemnoLibraryEdit #loginBox,body.ciemnoLibraryEdit #student,body.ciemnoLibraryEdit #teacherApp>section{display:none!important}
 body.ciemnoLibraryEdit #message:empty{display:none}
 body.ciemnoLibraryEdit #teacherPreparation{display:flow-root;margin:0}
 html:has(body.ciemnoLibraryEdit),body.ciemnoLibraryEdit{overflow:hidden}
@@ -135,13 +135,23 @@ setupKeyboards();setupPreviews();
 let previewTimer=0;
 $('studentAnswer').addEventListener('input',()=>{clearTimeout(previewTimer);previewTimer=setTimeout(()=>mathText($('studentMathPreview'),$('studentAnswer').value||'—'),80)});
 
+let startPlayWhenReady=false;
+function startLibrarySessionIfReady(){
+ // W bibliotece kliknięcie „Graj” oznacza uruchomienie sesji nauczyciela.
+ // Przy braku logowania uruchomienie nastąpi po zalogowaniu nauczyciela.
+ if(!startPlayWhenReady||ciemnoLibraryContext?.mode!=='play'||mode!=='teacher'||code)return;
+ const user=auth.currentUser;
+ if(!user||user.isAnonymous)return;
+ startPlayWhenReady=false;
+ queueMicrotask(()=>{if(!code&&ciemnoLibraryContext?.mode==='play'&&mode==='teacher')$('create').click();});
+}
 function cleanup(){unsubs.forEach(f=>f());unsubs=[];}
 function show(m){mode=m;$('entry').hidden=true;$('teacher').style.display=m==='teacher'?'block':'none';$('student').style.display=m==='student'?'block':'none';}
 function backToEntry(){cleanup();publicState=null;privateState=null;code='';localChosen=[];$('joinBox').hidden=false;$('studentApp').hidden=true;$('sessionBox').hidden=true;$('teacherRound').hidden=true;mode='';$('entry').hidden=false;$('teacher').style.display='none';$('student').style.display='none';msg('');}
 $('backTeacher').onclick=backToEntry;$('backStudent').onclick=backToEntry;
 $('teacherMode').onclick=()=>show('teacher');$('studentMode').onclick=()=>show('student');
-$('login').onclick=async()=>{try{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);$('loginBox').hidden=true;$('teacherApp').hidden=false;msg('Zalogowano.');}catch(e){msg('Logowanie: '+e.message)}};
-onAuthStateChanged(auth,u=>{if(u&&!u.isAnonymous){$('loginBox').hidden=true;$('teacherApp').hidden=false;}updateLibraryAuth();});
+$('login').onclick=async()=>{try{await signInWithEmailAndPassword(auth,$('email').value.trim(),$('password').value);$('loginBox').hidden=true;$('teacherApp').hidden=false;msg('Zalogowano.');startLibrarySessionIfReady();}catch(e){msg('Logowanie: '+e.message)}};
+onAuthStateChanged(auth,u=>{if(u&&!u.isAnonymous){$('loginBox').hidden=true;$('teacherApp').hidden=false;}updateLibraryAuth();startLibrarySessionIfReady();});
 
 let ciemnoLibraryContext=null;
 const ciemnoEmbedded=window.parent!==window&&!new URLSearchParams(location.search).has('join');
@@ -227,7 +237,17 @@ $('shareStudentLink').onclick=async()=>{
  try{await navigator.share({title:'Gra w ciemno – Do Potęgi',url:$('studentLink').href});}
  catch(error){if(error.name!=='AbortError')$('copyStudentFeedback').textContent='Udostępnianie niedostępne – użyj przycisku „Kopiuj link ucznia”.';}
 };
-$('create').onclick=async()=>{try{const user=auth.currentUser;if(!user||user.isAnonymous)throw Error('Zaloguj się jako nauczyciel.');if(ciemnoLibraryContext?.mode==='edit')throw Error('Uruchom grę przyciskiem Graj / Generuj, aby utworzyć sesję.');const {settings,tasks,answers}=readCiemnoSettings();const n=settings.count,l=settings.limit,r=l,c=randomCode(),answerMode=settings.answerMode;const shuffled=shuffle([...tasks.keys()]);const taskOrder=$('assignmentMode').value==='random'?shuffled.slice(0,r):Array.from({length:r},(_,i)=>i);const pool=makePool(n);const pub={owner:user.uid,phase:'choosing',count:n,rounds:r,limit:l,selected:[],status:Array(n).fill('available'),playerUid:null,current:-1,question:'',answerMode,studentResponse:'',answerSubmitted:false,answerCorrect:false,offer:null,negotiationsClosed:false,endRequestedBy:null,cash:0,finalResult:null,updatedAt:serverTimestamp()};const priv={owner:user.uid,tasks,answers,taskOrder,assignment:[],contents:pool,createdAt:serverTimestamp()};await setDoc(privRef(c),priv);await updateDoc(privRef(c),{maxPoints:Math.max(0,Math.min(100,Math.floor(Number($('maxPoints').value)||0)))});await setDoc(pubRef(c),pub);code=c;subscribeTeacher(c);$('sessionBox').hidden=false;$('code').textContent=c;const url=new URL(location.pathname,location.origin);
+$('create').onclick=async()=>{try{const user=auth.currentUser;if(ciemnoLibraryContext?.mode==='edit'){
+  // Przygotowanie w bibliotece ma przycisk bezpośredniego uruchomienia gry.
+  // Nowa sesja powstaje dopiero w osobnym widoku gry, nie w edytorze.
+  const {settings}=readCiemnoSettings();
+  publishCiemno();
+  if(window.parent===window)throw Error('Uruchom grę w bibliotece.');
+  window.parent.postMessage({channel:'do-potegi-html-v1',action:'launch'},location.origin);
+  return;
+ }
+ if(!user||user.isAnonymous)throw Error('Zaloguj się jako nauczyciel.');
+ const {settings,tasks,answers}=readCiemnoSettings();const n=settings.count,l=settings.limit,r=l,c=randomCode(),answerMode=settings.answerMode;const shuffled=shuffle([...tasks.keys()]);const taskOrder=$('assignmentMode').value==='random'?shuffled.slice(0,r):Array.from({length:r},(_,i)=>i);const pool=makePool(n);const pub={owner:user.uid,phase:'choosing',count:n,rounds:r,limit:l,selected:[],status:Array(n).fill('available'),playerUid:null,current:-1,question:'',answerMode,studentResponse:'',answerSubmitted:false,answerCorrect:false,offer:null,negotiationsClosed:false,endRequestedBy:null,cash:0,finalResult:null,updatedAt:serverTimestamp()};const priv={owner:user.uid,tasks,answers,taskOrder,assignment:[],contents:pool,createdAt:serverTimestamp()};await setDoc(privRef(c),priv);await updateDoc(privRef(c),{maxPoints:Math.max(0,Math.min(100,Math.floor(Number($('maxPoints').value)||0)))});await setDoc(pubRef(c),pub);code=c;subscribeTeacher(c);$('sessionBox').hidden=false;$('code').textContent=c;const url=new URL(location.pathname,location.origin);
 url.searchParams.set('join',c);
 $('studentLink').href=url.href;$('studentLink').textContent=url.href;
 $('copyStudentFeedback').textContent='';
@@ -321,7 +341,7 @@ if(initial){
 }
 
 if(ciemnoEmbedded&&window.DoPotegiTryb){
- const hint=document.createElement('p');hint.id='ciemnoLibraryHint';hint.textContent='Tytuł, tagi i przycisk „Zapisz grę” znajdują się nad formularzem. Zapis obejmuje pytania, odpowiedzi i ustawienia. Przy uruchomieniu utworzysz nową sesję z osobnym linkiem dla ucznia.';
+ const hint=document.createElement('p');hint.id='ciemnoLibraryHint';hint.textContent='Tytuł, tagi i przycisk „Zapisz grę” znajdują się nad formularzem. Po przygotowaniu pytań kliknij „Utwórz sesję”, aby od razu rozpocząć grę. Możesz również zapisać zestaw do późniejszego użycia.';
  $('teacherPreparation').prepend(hint);
  const error=document.createElement('p');error.id='ciemnoLibraryError';error.setAttribute('role','status');$('teacherPreparation').append(error);
  $('prepDetails').addEventListener('input',publishCiemno);$('prepDetails').addEventListener('change',publishCiemno);
@@ -330,8 +350,14 @@ if(ciemnoEmbedded&&window.DoPotegiTryb){
   show('teacher');updateLibraryAuth();
   if(context.payload&&context.payload.schema!==1){error.textContent='Ta wersja zapisu wymaga nowszego pliku Gry w ciemno.';return;}
   applyCiemnoSettings(context.payload?.settings);$('prepDetails').open=true;
-  if(context.mode==='edit')publishCiemno();
-  else{hint.textContent='Ustawienia zestawu zostały wczytane. Kliknij „Utwórz sesję”, a następnie przekaż uczniowi wygenerowany link lub kod.';}
+  if(context.mode==='edit'){
+   startPlayWhenReady=false;
+   publishCiemno();
+  }else{
+   hint.textContent='Wczytano zapisane ustawienia. Sesja zostanie utworzona automatycznie po uruchomieniu gry lub zalogowaniu nauczyciela.';
+   startPlayWhenReady=true;
+   startLibrarySessionIfReady();
+  }
  });
  window.addEventListener('pagehide',cleanup);
 }
